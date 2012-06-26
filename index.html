@@ -1,43 +1,11 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>3DR</title>
+---
+layout: default
+title: 3DRecursion
+---
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+{% for post in site.posts limit:5 %}
+<h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+{{ post.content }}
+<em>Posted on {{ post.date | date_to_long_string }}.</em>
+{% endfor %}
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>3D Recursion</h1>
-        <p>A simple modelling tool that can be used to create recursive 3-dimensional objects.</p>
-        <p class="view"><a href="https://github.com/evanpurcer/3d-recursion">View the Project on GitHub <small>evanpurcer/3d-recursion</small></a></p>
-        <ul>
-          <li><a href="https://github.com/evanpurcer/3d-recursion/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/evanpurcer/3d-recursion/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/evanpurcer/3d-recursion">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        {% for post in site.posts limit:5 %}
-        <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-        {{ post.content }}
-        <em>Posted on {{ post.date | date_to_long_string }}.</em>
-        {% endfor %}
-      </section>
-    </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/evanpurcer">evanpurcer</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-  </body>
-</html>
