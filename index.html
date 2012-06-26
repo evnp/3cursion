@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>3D Recursion by evanpurcer</title>
+    <title>3DR</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -27,9 +27,11 @@
         </ul>
       </header>
       <section>
-        <h1>3D Recursion</h1>
-
-<p>A simple modelling tool that can be used to create recursive 3-dimensional objects.</p>
+        {% for post in site.posts limit:5 %}
+        <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+        {{ post.content }}
+        <em>Posted on {{ post.date | date_to_long_string }}.</em>
+        {% endfor %}
       </section>
     </div>
     <footer>
@@ -37,6 +39,5 @@
       <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
     </footer>
     <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-    
   </body>
 </html>
