@@ -11,8 +11,8 @@ define([
         el: '#canvas',
 
         render: function () {
-            var w = window.innerWidth
-              , h = window.innerHeight
+            var w = this.$el.width()
+              , h = this.$el.height() - 4
               , materialProperties = { color: 0xff0000, wireframe: true }
 
               , scene    = new THREE.Scene()
@@ -32,6 +32,25 @@ define([
             renderer.setSize(w, h);
 
             this.$el.append(renderer.domElement);
+
+            animate();
+
+            function animate() {
+
+                // note: three.js includes requestAnimationFrame shim
+                requestAnimationFrame( animate );
+                render();
+
+            }
+
+            function render() {
+
+                mesh.rotation.x += 0.01;
+                mesh.rotation.y += 0.02;
+
+                renderer.render( scene, camera );
+
+            }
         }
     });
 });
