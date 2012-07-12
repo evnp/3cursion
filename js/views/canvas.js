@@ -33,6 +33,8 @@ define([
             this.camera.target = new THREE.Vector3( 0, 0, 0 );
             this.setupCameraControls();
 
+            this.projector = new THREE.Projector();
+
         // Mesh
             this.getShadedMesh = function (geometry) {
                 return new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
@@ -98,6 +100,8 @@ define([
             }
 
             onWindowResized(null);
+
+            this.setUpObjectSelection();
         },
 
         render: function () {
@@ -128,8 +132,6 @@ define([
         // Camera Rotation
             this.$el.mousedown(function (e) {
                 if (e.which === 3) {
-                    e.preventDefault();
-
                     mouseX = e.clientX; mouseLon = canvas.lon;
                     mouseY = e.clientY; mouseLat = canvas.lat;
 
@@ -172,6 +174,60 @@ define([
             this.camera.position.z = 100 * Math.sin(phi) * Math.sin(theta);
 
             this.camera.lookAt(this.camera.target);
+        },
+
+        setUpObjectSelection: function () {
+            var canvas = this;
+
+            canvas.$el.mousemove(function (e) {
+                var hovered = canvas.getHoveredObject(e.clientX, e.clientY);
+
+                // If the hovered object has changed, set colors
+                if (hovered != canvas.hovered) {
+                    if (canvas.hovered)
+                          canvas.hovered.material.color.setHex(0x000000);
+                    if (hovered) hovered.material.color.setHex(0xff0000);                   
+                    canvas.hovered = hovered;
+                }
+            });
+
+            canvas.$el.mousedown(function (e) {
+                if (e.which === 1 && canvas.hovered) {
+                    canvas.$el.on('mousemove.sel', function (e) {
+                    });
+
+                    canvas.$el.on('mouseup.sel', function (e) {
+                        if (e.which === 1) {
+                            canvas.$el.off('mousemove.sel');
+                            canvas.$el.off('mouseup.sel');
+                        }
+                    });
+                }
+            });
+        },
+
+    // Utility
+        getWireframeObjects: function () {
+            return _.filter(this.scene.__objects, function (obj) {
+                return obj.material && obj.material.wireframe;
+            });
+        },
+
+        getHoveredObject: function (x, y) {
+            var vector = new THREE.Vector3(
+                ((x/ W) * 2) - 1,
+               -((y/ H) * 2) + 1,
+                0.5
+            );
+
+            this.projector.unprojectVector(vector, this.camera);
+
+            var ray = new THREE.Ray(this.camera.position,
+                     vector.subSelf(this.camera.position).normalize())
+
+              , intersects = ray.intersectObjects(this.getWireframeObjects())
+
+            return intersects.length > 0 ? intersects[0].object : null;
         }
     });
 });
