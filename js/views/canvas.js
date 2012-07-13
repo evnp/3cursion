@@ -30,13 +30,6 @@ define([
             this.lon = 0;
             this.lat = 0;
 
-        // Camera
-            this.camera = new THREE.PerspectiveCamera(FOV, this.w/this.h, 1, 1000);
-            this.camera.target = new THREE.Vector3( 0, 0, 0 );
-            this.setupCameraControls();
-
-            this.projector = new THREE.Projector();
-
         // Cubes
             this.getShadedMesh = function (geometry) {
                 return new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
@@ -72,26 +65,37 @@ define([
             );
             cube2.position.x = 40;
 
-        // Reference Plane
+        // Object Hover
+            this.setupObjHover();
+
+        // Object Movement
+            this.setupObjMovement();
+
+            // Movement Reference Plane
             this.plane = new THREE.Mesh(
                 new THREE.PlaneGeometry( 2000, 2000, 8, 8 ),
                 new THREE.MeshBasicMaterial({
-                    color: 0x000000, opacity: 0.25,
+                    color: 0xff0000, opacity: 0.25,
                     transparent: true,
                     wireframe: true
                 })
             );
-            this.plane.lookAt(this.camera.position);
+
             this.plane.visible = false;
+
+            // Align the plane with the field of view
+            var rotation = new THREE.Matrix4().makeRotationX( Math.PI / 2 );
+            this.plane.geometry.applyMatrix(rotation);
 
             this.planeOffset = new THREE.Vector3();
 
-        // Scene
-            this.scene = new THREE.Scene();
-            this.scene.add(this.camera);
-            this.scene.add(cube1);
-            this.scene.add(cube2);
-            this.scene.add(this.plane);
+        // Projector - for establishing mouse-object intersections
+            this.projector = new THREE.Projector();
+
+        // Camera
+            this.camera = new THREE.PerspectiveCamera(FOV, this.w/this.h, 1, 1000);
+            this.camera.target = new THREE.Vector3( 0, 0, 0 );
+            this.setupCameraControls();
 
         // Lights
             var light1 = new THREE.DirectionalLight(0xffffff);
@@ -106,9 +110,17 @@ define([
             light2.position.z = -0.75;
             light2.position.normalize();
 
-            this.scene.add(new THREE.AmbientLight(0x404040));
+            var ambient = new THREE.AmbientLight(0x404040);
+
+        // Scene
+            this.scene = new THREE.Scene();
+            this.scene.add(this.camera);
+            this.scene.add(cube1);
+            this.scene.add(cube2);
+            this.scene.add(this.plane);
             this.scene.add(light1);
             this.scene.add(light2);
+            this.scene.add(ambient);
 
         // Renderer
             this.renderer = new THREE[RENDERER]();
@@ -123,10 +135,6 @@ define([
             }
 
             onWindowResized(null);
-
-        // Setup Interface
-            this.setupObjHover();
-            this.setupObjMovement();
         },
 
         render: function () {
@@ -156,26 +164,31 @@ define([
 
         // Camera Rotation
             this.$el.mousedown(function (e) {
-                if (e.which === 3) {
+                if (e.which === 1 && !canvas.hovered) {
+
                     mouseX = e.clientX; mouseLon = canvas.lon;
                     mouseY = e.clientY; mouseLat = canvas.lat;
 
                     canvas.$el.on('mousemove.cam', function (e) {
                         canvas.lon = ( e.clientX - mouseX ) * CAMSPEED + mouseLon;
                         canvas.lat = ( e.clientY - mouseY ) * CAMSPEED + mouseLat;
+
+                        canvas.el.style.cursor = 'crosshair';
                     });
 
                     canvas.$el.on('mouseup.cam', function (e) {
-                        if (e.which === 3) {
+                        if (e.which === 1) {
                             canvas.$el.off('mousemove.cam');
                             canvas.$el.off('mouseup.cam');
+
+                            canvas.el.style.cursor = 'auto';
+
+                            // Keep movment plane parallel with field of view
+                            canvas.plane.lookAt(canvas.camera.position);
                         }
                     });
                 }
             });
-
-            // Disable the context menu for camera rotation right click
-            this.$el.contextmenu(function (e) { return false; });
 
         // Camera Zoom
             this.el.addEventListener( 'mousewheel',     onMouseWheel, false );
@@ -214,14 +227,19 @@ define([
             var canvas = this;
 
             canvas.$el.mousemove(function (e) {
-                var hovered = canvas.getHoveredAt(e.clientX, e.clientY);
+                if (!canvas.selected) {
+                    var hovered = canvas.getHoveredAt(e.clientX, e.clientY);
 
-                // If the hovered object has changed,
-                // set colors, then set new hovered
-                if (hovered != canvas.hovered) {
-                    canvas.setColor(canvas.hovered, BLACK);
-                    canvas.hovered = hovered;
-                    canvas.setColor(canvas.hovered, RED);
+                    // If the hovered object has changed,
+                    // set colors, then set new hovered
+                    if (hovered != canvas.hovered) {
+                        canvas.setColor(canvas.hovered, BLACK);
+                        canvas.setColor(hovered, RED);
+                        canvas.hovered = hovered;
+                    }
+
+                    // If an object is being hovered over
+                    if (hovered) { canvas.el.style.cursor = 'move'; }
                 }
             });
         },
@@ -232,26 +250,30 @@ define([
             canvas.$el.mousedown(function (e) {
                 if (e.which === 1 && canvas.hovered) {
 
+                    // Select hovered object
+                    canvas.select(canvas.hovered);
+
                     // Set plane offset for new mouseDown start position
-                    var intersect = canvas.getIntersectBetween(
-                            e.clientX, e.clientY, canvas.plane
-                        );
+                    var x = e.clientX
+                      , y = e.clientY
+                      , intersect = canvas.getIntersectBetween(x, y, canvas.plane);
+
                     if (intersect) {
                         canvas.planeOffset.copy(
                             intersect.point
                         ).subSelf(canvas.plane.position);
                     }
 
-                    canvas.el.style.cursor = 'move';
-
                     canvas.$el.on('mousemove.hov', function (e) {
-                        if (canvas.hovered) {
-                            var intersect = canvas.getIntersectBetween(
-                                     e.clientX, e.clientY, canvas.plane)
+                        var x = e.clientX
+                          , y = e.clientY;
+
+                        if (canvas.selected) {
+                            var intersect = canvas.getIntersectBetween(x, y, canvas.plane);
 
                             if (intersect) {
-                                var newPosition = intersect.point.subSelf(canvas.planeOffset)
-                                canvas.moveHoveredTo(newPosition);
+                                var direction = intersect.point.subSelf(canvas.planeOffset)
+                                canvas.moveSelected(direction);
                             }
                         }
                     });
@@ -260,17 +282,37 @@ define([
                         if (e.which === 1) {
                             canvas.$el.off('mousemove.hov');
                             canvas.$el.off('mouseup.hov');
-                            canvas.el.style.cursor = 'auto';
+
+                            canvas.selected = null;
                         }
                     });
                 }
             });
         },
 
-        moveHoveredTo: function(position) {
-            if (this.hovered && this.hovered.wireframe && this.hovered.shaded) {
-                this.hovered.wireframe.position.copy(position);
-                this.hovered.shaded.position.copy(position);
+        select: function(obj) {
+            this.selected = obj;
+
+            // Store the object's original position to be used
+            // as an offset to the mouse movement
+            this.selected.origPos = obj.wireframe.position;
+        },
+
+        moveSelected: function(direction) {
+            if (this.selected
+             && this.selected.wireframe
+             && this.selected.shaded
+             && this.selected.origPos) {
+
+                var origPos  = this.selected.origPos
+                  , position = new THREE.Vector3(
+                        origPos.x + direction.x,
+                        origPos.y + direction.y,
+                        origPos.z + direction.z
+                    );
+
+                this.selected.wireframe.position = position;
+                this.selected.shaded.position    = position;
             }
         },
 
@@ -295,7 +337,7 @@ define([
               , wireframe = intersect ? intersect.object : null
               , index     = objects.wireframe.indexOf(wireframe);
 
-            return {
+            return index === -1 ? null : {
                 wireframe: objects.wireframe[index] || null,
                 shaded:    objects.shaded[index]    || null
             };
@@ -304,9 +346,9 @@ define([
         getIntersectBetween: function (x, y, obj) {
             var ray = this.getRayAt(x, y)
 
-            return ( obj instanceof Array  ?
-                 ray.intersectObjects(obj) :
-                  ray.intersectObject(obj) )[0] || null;
+            return ( obj instanceof Array ?
+                ray.intersectObjects(obj) :
+                ray.intersectObject( obj) )[0] || null;
         },
 
         getRayAt: function (x, y) {
@@ -319,6 +361,13 @@ define([
 
             return new THREE.Ray(this.camera.position,
                   vector.subSelf(this.camera.position).normalize());
+        },
+
+        setMovementPlane: function (obj) {
+            if (obj.wireframe) {
+                this.plane.position.copy(obj.wireframe.position);
+                this.plane.lookAt(this.camera.position);
+            }
         },
 
         setColor: function (obj, color) {
