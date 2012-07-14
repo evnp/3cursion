@@ -33,12 +33,14 @@ define([
 
             this.set({
 
-                // Wireframe is used to represent the cube's mesh.
-                'mesh': obj.children[1],
-
-                // Related meshes
-                'shading': obj.children[0],
+                // Main cube object is used for cube movement
                 'object': obj,
+
+                // Wireframe is used for mouse/cube intersection
+                'wireframe': obj.children[1],
+
+                // Shading
+                'shading': obj.children[0],
 
                 // Original position stored to be used as offset for movement
                 'origPos': obj.position,
@@ -59,24 +61,21 @@ define([
             else this.hover(this.get('hovered'));
 
             this.set('selected', selectVal);
-            this.set('origPos', this.get('mesh').position);
+            this.set('origPos', this.get('object').position);
         },
 
         setColor: function (color) {
-            this.get('mesh').material.color.setHex(color);
+            this.get('wireframe').material.color.setHex(color);
         },
 
         move: function (movement) {
-            var origPos = this.get('origPos')
-              , pos = new THREE.Vector3(
-                    origPos.x + movement.x,
-                    origPos.y + movement.y,
-                    origPos.z + movement.z
-                );
+            var origPos = this.get('origPos');
 
-            this.get('mesh'   ).position = pos;
-            this.get('shading').position = pos;
-            this.get('object' ).position = pos;
+            this.get('object' ).position = new THREE.Vector3(
+                origPos.x + movement.x,
+                origPos.y + movement.y,
+                origPos.z + movement.z
+            );
         }
     });
 

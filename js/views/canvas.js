@@ -294,7 +294,7 @@ define([
     // Utility
         getHoveredAt: function (x, y) {
             return this.cubes.getFromIntersect(
-                this.getIntersectBetween(x, y, this.cubes.getMeshes())
+                this.getIntersectBetween(x, y, this.cubes.wireframes())
             );
         },
 

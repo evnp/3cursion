@@ -19,18 +19,18 @@ define([
             }
         },
 
-        getMeshes: function () {
-            return this.pluck('mesh');
+        wireframes: function () {
+            return this.pluck('wireframe');
         },
 
-        getFromMesh: function (mesh) {
+        getFromWireframe: function (wf) {
             return this.find( function (cube) {
-                return cube.get('mesh').id === (mesh && mesh.id);
+                return cube.get('wireframe').id === (wf && wf.id);
             }) || null;
         },
 
         getFromIntersect: function (intersect) {
-            return intersect && this.getFromMesh(intersect.object);
+            return intersect && this.getFromWireframe(intersect.object);
         },
 
         moveAll: function (movement) {
