@@ -223,46 +223,62 @@ define([
             this.selected.add(cube);
         },
 
-    // Object Movement
+        setupObjSelection: function () {
+            var canvas = this;
+
+            canvas.$el.mousedown( function (e) {
+                if (canvas.hovered) {
+                    // Select hovered object
+                    canvas.select(canvas.hovered);
+
+                    // Set plane offset for new mouseDown start position
+                    var x = e.clientX
+                      , y = e.clientY
+                      , intersect = canvas.getIntersectBetween(
+                          x, y, canvas.plane);
+
+                    if (intersect) {
+                        canvas.planeOffset.copy(
+                            intersect.point
+                        ).subSelf(canvas.plane.position);
+                    }
+                }
+            });
+        },
+
+    // Object Movement/Rotation
         setupObjMovement: function () {
             var canvas = this;
 
             canvas.$el.mousedown(function (e) {
-                if (e.which === 1) {
+                if (e.which === 1 || e.which === 3) {
                     if (canvas.hovered) {
+                        var type = e.which === 1 ? 'mov' : 'rtn';
 
-                        // Select hovered object
-                        canvas.select(canvas.hovered);
-
-                        // Set plane offset for new mouseDown start position
-                        var x = e.clientX
-                          , y = e.clientY
-                          , intersect = canvas.getIntersectBetween(x, y, canvas.plane);
-
-                        if (intersect) {
-                            canvas.planeOffset.copy(
-                                intersect.point
-                            ).subSelf(canvas.plane.position);
-                        }
-
-                        canvas.$el.on('mousemove.hov', function (e) {
+                        canvas.$el.on('mousemove.'+ type, function (e) {
                             var x = e.clientX
                               , y = e.clientY;
 
                             if (!canvas.selected.isEmpty()) {
-                                var intersect = canvas.getIntersectBetween(x, y, canvas.plane);
+                                var intersect = canvas.getIntersectBetween(
+                                        x, y, canvas.plane);
 
                                 if (intersect) {
-                                    var movement = intersect.point.subSelf(canvas.planeOffset)
-                                    canvas.selected.moveAll(movement);
+                                    var movement =
+                                        intersect.point.subSelf(canvas.planeOffset)
+
+                                    if (e.which === 1)
+                                        canvas.selected.moveAll(movement);
+                                    else if (e.which === 3)
+                                        canvas.selected.rotateAll(movement);
                                 }
                             }
                         });
 
-                        canvas.$el.on('mouseup.hov', function (e) {
+                        canvas.$el.on('mouseup.' + type, function (e) {
                             if (e.which === 1) {
-                                canvas.$el.off('mousemove.hov');
-                                canvas.$el.off('mouseup.hov');
+                                canvas.$el.off('mousemove.'+ type);
+                                canvas.$el.off('mouseup.'  + type);
 
                                 canvas.selected.updatePositions();
                             }
