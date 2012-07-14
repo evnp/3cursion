@@ -37,8 +37,12 @@ define([
             this.each( function (cube) { cube.move(movement); });
         },
 
+        updatePositions: function () {
+            this.each( function (cube) { cube.updatePosition(); });
+        },
+
         deselectAll: function () {
-            this.each( function (cube) { cube.selected = false; });
+            this.each( function (cube) { cube.select(false); });
             this.reset();
         }
     });

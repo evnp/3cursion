@@ -52,16 +52,14 @@ define([
         },
 
         hover: function (hoverVal) {
-            this.setColor( hoverVal ? BLACK : GREY );
             this.set('hovered', hoverVal);
+            if (!this.get('selected')) this.setColor( hoverVal ? BLACK : GREY );
         },
 
         select: function (selectVal) {
+            this.set('selected', selectVal);
             if (selectVal) this.setColor(RED);
             else this.hover(this.get('hovered'));
-
-            this.set('selected', selectVal);
-            this.set('origPos', this.get('object').position);
         },
 
         setColor: function (color) {
@@ -71,12 +69,17 @@ define([
         move: function (movement) {
             var origPos = this.get('origPos');
 
-            this.get('object' ).position = new THREE.Vector3(
+            this.get('object').position = new THREE.Vector3(
                 origPos.x + movement.x,
                 origPos.y + movement.y,
                 origPos.z + movement.z
             );
+        },
+
+        updatePosition: function () {
+            this.set('origPos', this.get('object').position);
         }
+
     });
 
     return Cube;

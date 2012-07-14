@@ -223,70 +223,54 @@ define([
             this.selected.add(cube);
         },
 
-        deselect: function () {
-            this.selected.deselectAll();
-        },
-
     // Object Movement
         setupObjMovement: function () {
             var canvas = this;
 
             canvas.$el.mousedown(function (e) {
-                if (e.which === 1 && canvas.hovered) {
+                if (e.which === 1) {
+                    if (canvas.hovered) {
 
-                    // Select hovered object
-                    canvas.select(canvas.hovered);
+                        // Select hovered object
+                        canvas.select(canvas.hovered);
 
-                    // Set plane offset for new mouseDown start position
-                    var x = e.clientX
-                      , y = e.clientY
-                      , intersect = canvas.getIntersectBetween(x, y, canvas.plane);
-
-                    if (intersect) {
-                        canvas.planeOffset.copy(
-                            intersect.point
-                        ).subSelf(canvas.plane.position);
-                    }
-
-                    canvas.$el.on('mousemove.hov', function (e) {
+                        // Set plane offset for new mouseDown start position
                         var x = e.clientX
-                          , y = e.clientY;
+                          , y = e.clientY
+                          , intersect = canvas.getIntersectBetween(x, y, canvas.plane);
 
-                        if (!canvas.selected.isEmpty()) {
-                            var intersect = canvas.getIntersectBetween(x, y, canvas.plane);
+                        if (intersect) {
+                            canvas.planeOffset.copy(
+                                intersect.point
+                            ).subSelf(canvas.plane.position);
+                        }
 
-                            if (intersect) {
-                                var movement = intersect.point.subSelf(canvas.planeOffset)
-                                canvas.selected.moveAll(movement);
+                        canvas.$el.on('mousemove.hov', function (e) {
+                            var x = e.clientX
+                              , y = e.clientY;
+
+                            if (!canvas.selected.isEmpty()) {
+                                var intersect = canvas.getIntersectBetween(x, y, canvas.plane);
+
+                                if (intersect) {
+                                    var movement = intersect.point.subSelf(canvas.planeOffset)
+                                    canvas.selected.moveAll(movement);
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    canvas.$el.on('mouseup.hov', function (e) {
-                        if (e.which === 1) {
-                            canvas.$el.off('mousemove.hov');
-                            canvas.$el.off('mouseup.hov');
-                        }
-                    });
-                }
-            });
-        },
+                        canvas.$el.on('mouseup.hov', function (e) {
+                            if (e.which === 1) {
+                                canvas.$el.off('mousemove.hov');
+                                canvas.$el.off('mouseup.hov');
 
-        moveSelected: function(direction) {
-            _.each(this.selected, function(obj) {
-                if (obj
-                &&  obj.wireframe
-                &&  obj.shaded
-                &&  obj.origPos) {
+                                canvas.selected.updatePositions();
+                            }
+                        });
 
-                    var position = new THREE.Vector3(
-                            obj.origPos.x + direction.x,
-                            obj.origPos.y + direction.y,
-                            obj.origPos.z + direction.z
-                        );
-
-                    obj.wireframe.position = position;
-                    obj.shaded.position    = position;
+                    } else {
+                        canvas.selected.deselectAll();
+                    }
                 }
             });
         },
@@ -316,13 +300,6 @@ define([
 
             return new THREE.Ray(this.camera.position,
                   vector.subSelf(this.camera.position).normalize());
-        },
-
-        setMovementPlane: function (obj) {
-            if (obj.wireframe) {
-                this.plane.position.copy(obj.wireframe.position);
-                this.plane.lookAt(this.camera.position);
-            }
         }
     });
 });
