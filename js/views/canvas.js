@@ -51,6 +51,7 @@ define([
 
         // Object Movement
             this.setupObjMovement();
+            this.setupObjRotation();
 
             // Movement Reference Plane
             this.plane = new THREE.Mesh(
@@ -273,6 +274,39 @@ define([
                     }
                 }
             });
+        },
+
+    // Object Rotation
+        setupObjRotation: function () {
+            var canvas = this;
+
+            canvas.$el.mousedown(function (e) {
+                var startX = e.clientX
+                  , startY = e.clientY;
+
+                if (e.which === 3) {
+                    canvas.$el.on('mousemove.rtn', function (e) {
+
+                        // Axis' reversed
+                        var y = e.clientX - startX
+                          , x = e.clientY - startY;
+
+                        canvas.selected.rotateAll(x, y);
+                    });
+
+                    canvas.$el.on('mouseup.rtn', function (e) {
+                        if (e.which === 3) {
+                            canvas.$el.off('mousemove.rtn');
+                            canvas.$el.off('mouseup.rtn');
+
+                            canvas.selected.updateRotations();
+                        }
+                    });
+                }
+            });
+
+            // Prevent context menu on right-click
+            canvas.$el.contextmenu( function () { return false; });
         },
 
     // Utility

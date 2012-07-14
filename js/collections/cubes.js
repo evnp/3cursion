@@ -41,6 +41,14 @@ define([
             this.each( function (cube) { cube.updatePosition(); });
         },
 
+        rotateAll: function (x, y) {
+            this.each( function (cube) { cube.rotate(x, y); });
+        },
+
+        updateRotations: function () {
+            this.each( function (cube) { cube.updateRotation(); });
+        },
+
         deselectAll: function () {
             this.each( function (cube) { cube.select(false); });
             this.reset();

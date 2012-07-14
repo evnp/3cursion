@@ -42,8 +42,9 @@ define([
                 // Shading
                 'shading': obj.children[0],
 
-                // Original position stored to be used as offset for movement
+                // Original position/rotation stored to be used as offset for movement
                 'origPos': obj.position,
+                'origRtn': obj.rotation,
 
                 // Cube states
                 'hovered': false,
@@ -78,8 +79,21 @@ define([
 
         updatePosition: function () {
             this.set('origPos', this.get('object').position);
-        }
+        },
 
+        rotate: function (x, y) {
+            var origRtn = this.get('origRtn');
+
+            this.get('object').rotation = new THREE.Vector3(
+                origRtn.x,
+                origRtn.y + (y/200),
+                origRtn.z// + (x/30)
+            );
+        },
+
+        updateRotation: function () {
+            this.set('origRtn', this.get('object').rotation);
+        }
     });
 
     return Cube;
