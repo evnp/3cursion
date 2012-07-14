@@ -35,7 +35,7 @@ define([
 
         // Cubes
             this.hovered  = null;
-            this.selected = new CubeCollection([], this.scene);
+            this.selected = new CubeCollection();
             this.cubes    = new CubeCollection([], this.scene);
 
             // Dev - add 2 cubes
@@ -203,7 +203,6 @@ define([
 
             canvas.$el.mousemove(function (e) {
                 var hovered = canvas.getHoveredAt(e.clientX, e.clientY);
-                console.log(hovered);
 
                 // If the hovered object has changed,
                 // set colors, then set new hovered
@@ -257,8 +256,8 @@ define([
                             var intersect = canvas.getIntersectBetween(x, y, canvas.plane);
 
                             if (intersect) {
-                                var direction = intersect.point.subSelf(canvas.planeOffset)
-                                canvas.moveSelected(direction);
+                                var movement = intersect.point.subSelf(canvas.planeOffset)
+                                canvas.selected.moveAll(movement);
                             }
                         }
                     });
