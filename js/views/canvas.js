@@ -277,35 +277,33 @@ define([
             // Mouse Button Event Routing
                 if (left || right) {
 
+
                     if (!canvas.hovered) {
                         canvas.selected.deselectAll();
 
                     } else {
                         var recursive = false
-                          , startX = e.clientX
-                          , type = (left && right) ? 'rec' :
-                                             (left ? 'mov' :
-                                                     'rtn');
+                          , startX = e.clientX;
 
-                        canvas.$el.on('mousemove.'+ type, onMouseMove);
+                        canvas.$el.off('mousemove.mov');
+                        canvas.$el.on('mousemove.mov', onMouseMove);
 
-                        canvas.$el.on('mouseup.all', function (e) {
+                        canvas.$el.off('mouseup.mov');
+                        canvas.$el.on('mouseup.mov', function (e) {
 
                             if ((e.which === 1 && right)
                              || (e.which === 3 && left)) {
-                                canvas.$el.off('mousemove.rec');
-                                canvas.$el.off('mouseup.all');
                                 canvas.selected.deselectAll();
                                 recursive = false;
 
                             } else if (e.which === 1) {
                                 canvas.$el.off('mousemove.mov');
-                                canvas.$el.off('mouseup.all');
+                                canvas.$el.off('mouseup.mov');
                                 canvas.selected.updatePositions();
 
                             } else if (e.which === 3) {
-                                canvas.$el.off('mousemove.rtn');
-                                canvas.$el.off('mouseup.all');
+                                canvas.$el.off('mousemove.mov');
+                                canvas.$el.off('mouseup.mov');
                                 canvas.selected.updateRotations();
                             }
                         });
