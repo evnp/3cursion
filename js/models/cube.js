@@ -9,7 +9,9 @@ define([
     var BLACK = 0x000000
       , WHITE = 0xffffff
       , RED   = 0xff0000
-      , GREY  = 0xD3D3D3;
+      , GREY  = 0xD3D3D3
+
+      , RECURSION_LIMIT = 50;
 
     var Cube = Backbone.Model.extend({
 
@@ -48,7 +50,11 @@ define([
 
                 // Cube states
                 'hovered': false,
-                'selected': false
+                'selected': false,
+
+                // Recursion
+                'child': null,
+                'parent': null
             });
         },
 
@@ -67,14 +73,23 @@ define([
             this.get('wireframe').material.color.setHex(color);
         },
 
-        move: function (movement) {
-            var origPos = this.get('origPos');
+        move: function (movement, level) {
+            level = level || 1;
 
-            this.get('object').position = new THREE.Vector3(
-                origPos.x + movement.x,
-                origPos.y + movement.y,
-                origPos.z + movement.z
-            );
+            var origPos = this.get('origPos')
+              , child   = this.get('child');
+
+            this.setPosition(new THREE.Vector3(
+                    origPos.x + (movement.x * level),
+                    origPos.y + (movement.y * level),
+                    origPos.z + (movement.z * level)
+            ));
+
+            if (child) child.move(movement, level + 1);
+        },
+
+        setPosition: function (position) {
+            this.get('object').position = position;
         },
 
         updatePosition: function () {
@@ -99,6 +114,18 @@ define([
 
         updateRotation: function () {
             this.set('origRtn', this.get('object').rotation);
+        },
+
+        recurse: function (limit) {
+            limit = limit || 0;
+
+            if (limit < RECURSION_LIMIT) {
+                var child = this.clone();
+                this.set('child', child);
+                return [child].concat(child.recurse(limit + 1));
+            }
+
+            return [];
         }
     });
 

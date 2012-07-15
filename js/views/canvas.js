@@ -219,19 +219,19 @@ define([
         },
 
     // Object Selection
-        select: function (cube) {
-            cube.select(true);
-            this.selected.add(cube);
-        },
-
         setupObjSelection: function () {
             var canvas = this;
+
+            // Set object properties correctly on select
+            canvas.selected.on('add', function (cube) {
+                cube.select(true);
+            });
 
             canvas.$el.mousedown( function (e) {
                 if (canvas.hovered) {
 
                     // Select hovered object
-                    canvas.select(canvas.hovered);
+                    canvas.selected.add(canvas.hovered);
 
                     // Set plane offset for new mouseDown start position
                     var x = e.clientX
@@ -281,7 +281,8 @@ define([
                         canvas.selected.deselectAll();
 
                     } else {
-                        var startX = e.clientX
+                        var recursive = false
+                          , startX = e.clientX
                           , type = (left && right) ? 'rec' :
                                              (left ? 'mov' :
                                                      'rtn');
@@ -290,13 +291,12 @@ define([
 
                         canvas.$el.on('mouseup.all', function (e) {
 
-                            if (e.which === 1 && right) {
+                            if ((e.which === 1 && right)
+                             || (e.which === 3 && left)) {
                                 canvas.$el.off('mousemove.rec');
-                                canvas.$el.on( 'mousemove.mov', onMouseMove);
-
-                            } else if (e.which === 3 && left) {
-                                canvas.$el.off('mousemove.rec');
-                                canvas.$el.on( 'mousemove.rtn', onMouseMove);
+                                canvas.$el.off('mouseup.all');
+                                canvas.selected.deselectAll();
+                                recursive = false;
 
                             } else if (e.which === 1) {
                                 canvas.$el.off('mousemove.mov');
@@ -322,12 +322,25 @@ define([
                                   , movement = intersect.point.subSelf(
                                         canvas.planeOffset)
 
-                                if (left && right)
-                                    canvas.selected.recurse(movement);
-                                else if (left)
+                                if (left && right && !recursive) {
+                                    canvas.cubes.add(
+                                        canvas.selected.recurseAll(movement)
+                                    );
+
+                                    var children =
+                                        canvas.selected.pluck('child');
+
+                                    canvas.selected.deselectAll();
+                                    canvas.selected.add(children);
+
+                                    recursive = true;
+
+                                } else if (left || recursive) {
                                     canvas.selected.moveAll(movement);
-                                else if (right)
+
+                                } else if (right) {
                                     canvas.selected.rotateAll(movement, mouseX);
+                                }
                             }
                         }
 

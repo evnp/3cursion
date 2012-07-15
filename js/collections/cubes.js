@@ -49,8 +49,12 @@ define([
             this.each( function (cube) { cube.updateRotation(); });
         },
 
-        recurse: function (movement) {
-            console.log('recursing');
+        recurseAll: function (movement) {
+            var children = [];
+            this.each( function (cube) {
+                children = children.concat(cube.recurse());
+            });
+            return children;
         },
 
         deselectAll: function () {
