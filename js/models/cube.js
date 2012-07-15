@@ -82,15 +82,16 @@ define([
         },
 
         rotate: function (movement, mouseX) {
-            var origRtn = this.get('origRtn')
+            var speed = 30
+              , origRtn = this.get('origRtn')
               , x = movement.x, y = movement.y, z = movement.z;
 
             // TODO: Make object rotation more intuitive
             this.get('object').rotation = new THREE.Vector3(
-                origRtn.x + (Math.abs(movement.y/10) *
+                origRtn.x + (Math.abs(movement.y * speed * 0.001) *
                             (z / (Math.abs(x) + Math.abs(z)))),
-                origRtn.y + (mouseX/100),
-                origRtn.z + (Math.abs(movement.y/10) *
+                origRtn.y + (mouseX * speed * 0.0001),
+                origRtn.z + (Math.abs(movement.y * speed * 0.001) *
                            -(x / (Math.abs(x) + Math.abs(z))))
 
             );
