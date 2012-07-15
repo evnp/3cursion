@@ -48,10 +48,10 @@ define([
             this.setupObjHover();
 
         // Object Selection
+            this.setupObjSelection();
 
         // Object Movement
             this.setupObjMovement();
-            this.setupObjRotation();
 
             // Movement Reference Plane
             this.plane = new THREE.Mesh(
@@ -229,6 +229,7 @@ define([
 
             canvas.$el.mousedown( function (e) {
                 if (canvas.hovered) {
+
                     // Select hovered object
                     canvas.select(canvas.hovered);
 
@@ -247,77 +248,90 @@ define([
             });
         },
 
-    // Object Movement/Rotation
+    // Object Movement/Rotation/Recursion
         setupObjMovement: function () {
-            var canvas = this;
+            var canvas = this
+              , left, right;
 
             canvas.$el.mousedown(function (e) {
-                if (e.which === 1 || e.which === 3) {
-                    if (canvas.hovered) {
-                        var type = e.which === 1 ? 'mov' : 'rtn';
 
-                        canvas.$el.on('mousemove.'+ type, function (e) {
+            // Mouse Button States
+                if (e.which === 1) {
+                    left  = true;
+                    canvas.$el.on('mouseup.left', function (e) {
+                        if (e.which === 1) {
+                            canvas.$el.off('mouseup.left');
+                            left  = false;
+                        }
+                    });
+                } else if (e.which === 3) {
+                    right = true;
+                    canvas.$el.on('mouseup.right', function (e) {
+                        if (e.which === 3) {
+                            canvas.$el.off('mouseup.right');
+                            right = false;
+                        }
+                    });
+                }
+
+            // Mouse Button Event Routing
+                if (left || right) {
+
+                    if (!canvas.hovered) {
+                        canvas.selected.deselectAll();
+
+                    } else {
+                        var startX = e.clientX
+                          , type = (left && right) ? 'rec' :
+                                             (left ? 'mov' :
+                                                     'rtn');
+
+                        canvas.$el.on('mousemove.'+ type, onMouseMove);
+
+                        canvas.$el.on('mouseup.all', function (e) {
+
+                            if (e.which === 1 && right) {
+                                canvas.$el.off('mousemove.rec');
+                                canvas.$el.on( 'mousemove.mov', onMouseMove);
+
+                            } else if (e.which === 3 && left) {
+                                canvas.$el.off('mousemove.rec');
+                                canvas.$el.on( 'mousemove.rtn', onMouseMove);
+
+                            } else if (e.which === 1) {
+                                canvas.$el.off('mousemove.mov');
+                                canvas.$el.off('mouseup.all');
+                                canvas.selected.updatePositions();
+
+                            } else if (e.which === 3) {
+                                canvas.$el.off('mousemove.rtn');
+                                canvas.$el.off('mouseup.all');
+                                canvas.selected.updateRotations();
+                            }
+                        });
+
+                    // Mouse Movement Handler
+                        function onMouseMove(e) {
                             var x = e.clientX
-                              , y = e.clientY;
+                              , y = e.clientY
+                              , mouseX = x - startX;
 
                             if (!canvas.selected.isEmpty()) {
                                 var intersect = canvas.getIntersectBetween(
-                                        x, y, canvas.plane);
+                                        x, y, canvas.plane)
+                                  , movement = intersect.point.subSelf(
+                                        canvas.planeOffset)
 
-                                if (intersect) {
-                                    var movement =
-                                        intersect.point.subSelf(canvas.planeOffset)
-
-                                    if (e.which === 1)
-                                        canvas.selected.moveAll(movement);
-                                    else if (e.which === 3)
-                                        canvas.selected.rotateAll(movement);
-                                }
+                                if (left && right)
+                                    canvas.selected.recurse(movement);
+                                else if (left)
+                                    canvas.selected.moveAll(movement);
+                                else if (right)
+                                    canvas.selected.rotateAll(movement, mouseX);
                             }
-                        });
-
-                        canvas.$el.on('mouseup.' + type, function (e) {
-                            if (e.which === 1) {
-                                canvas.$el.off('mousemove.'+ type);
-                                canvas.$el.off('mouseup.'  + type);
-
-                                canvas.selected.updatePositions();
-                            }
-                        });
-
-                    } else {
-                        canvas.selected.deselectAll();
-                    }
-                }
-            });
-        },
-
-    // Object Rotation
-        setupObjRotation: function () {
-            var canvas = this;
-
-            canvas.$el.mousedown(function (e) {
-                var startX = e.clientX
-                  , startY = e.clientY;
-
-                if (e.which === 3) {
-                    canvas.$el.on('mousemove.rtn', function (e) {
-
-                        // Axis' reversed
-                        var y = e.clientX - startX
-                          , x = e.clientY - startY;
-
-                        canvas.selected.rotateAll(x, y);
-                    });
-
-                    canvas.$el.on('mouseup.rtn', function (e) {
-                        if (e.which === 3) {
-                            canvas.$el.off('mousemove.rtn');
-                            canvas.$el.off('mouseup.rtn');
-
-                            canvas.selected.updateRotations();
                         }
-                    });
+
+                    }
                 }
             });
 
