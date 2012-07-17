@@ -77,7 +77,7 @@ define([
             level = level || 1;
 
             var position = this.get('position')
-              , child   = this.get('child');
+              , child    = this.get('child');
 
             this.get('object').position = new THREE.Vector3(
                     position.x + (movement.x * level),
@@ -85,6 +85,7 @@ define([
                     position.z + (movement.z * level)
             );
 
+            // If the move needs to be recursive...
             if (child) child.move(movement, level + 1);
         },
 
@@ -104,13 +105,6 @@ define([
             );
         },
 
-        scale: function (factor) {
-            var scale = this.get('object').scale;
-            scale.x += factor * 0.01;
-            scale.y += factor * 0.01;
-            scale.z += factor * 0.01;
-        },
-
         // move/rotate run constantly during a move operation.
         // update(Move/Position) used after a move operation is
         // completed so that the correct position/rotation will
@@ -120,6 +114,24 @@ define([
 
         update: function (property) {
             this.set( property, this.get('object')[property] );
+        },
+
+        scale: function (factor, level) {
+            level = level || 1;
+
+            var scale = this.get('object').scale
+              , child = this.get('child');
+
+            scale.x += factor * 0.01 * level;
+            scale.y += factor * 0.01 * level;
+            scale.z += factor * 0.01 * level;
+
+            // If the scale needs to be recursive...
+            if (child) child.scale(factor, level + 1);
+        },
+
+        getScale: function () {
+            return this.get('object').boundRadiusScale;
         },
 
         recurse: function (limit) {

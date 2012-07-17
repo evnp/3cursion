@@ -220,6 +220,7 @@ define([
             // Set object properties correctly on select
             canvas.selected.on('add', function (cube) {
                 cube.select(true);
+                console.log(cube);
             });
 
             canvas.$el.mousedown( function (e) {

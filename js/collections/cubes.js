@@ -57,9 +57,13 @@ define([
 
         recurseAll: function (movement) {
             var children = [];
+
+            // Collect added children from each cube's recursion and
+            // return them all, so that they can be added to the scene.
             this.each( function (cube) {
                 children = children.concat(cube.recurse());
             });
+
             return children;
         },
 
