@@ -96,7 +96,7 @@ define([
             this.set('origPos', this.get('object').position);
         },
 
-        rotate: function (movement, mouseX) {
+        rotate: function (movement, mouseX, mouseY) {
             var speed = 30
               , origRtn = this.get('origRtn')
               , x = movement.x, y = movement.y, z = movement.z;

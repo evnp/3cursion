@@ -283,12 +283,14 @@ define([
                     } else {
                         var recursive = false
                           , startX = e.clientX
+                          , startY = e.clientY
                           , type = (left && right) ? 'rec' :
                                              (left ? 'mov' :
                                                      'rtn');
 
                         canvas.$el.on('mousemove.'+ type, onMouseMove);
 
+                        // TODO: handle case where mouse leaves canvas before mouseup
                         canvas.$el.on('mouseup.all', function (e) {
 
                             if ((e.which === 1 && right)
@@ -314,7 +316,8 @@ define([
                         function onMouseMove(e) {
                             var x = e.clientX
                               , y = e.clientY
-                              , mouseX = x - startX;
+                              , mouseX = x - startX
+                              , mouseY = y - startY;
 
                             if (!canvas.selected.isEmpty()) {
                                 var intersect = canvas.getIntersectBetween(
@@ -339,7 +342,8 @@ define([
                                     canvas.selected.moveAll(movement);
 
                                 } else if (right) {
-                                    canvas.selected.rotateAll(movement, mouseX);
+                                    canvas.selected.rotateAll(
+                                        movement, mouseX, mouseY);
                                 }
                             }
                         }
