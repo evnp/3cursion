@@ -51,6 +51,10 @@ define([
             this.each( function (cube) { cube.updateRotation(); });
         },
 
+        scaleAll: function (factor) {
+            this.each( function (cube) { cube.scale(factor); });
+        },
+
         recurseAll: function (movement) {
             var children = [];
             this.each( function (cube) {

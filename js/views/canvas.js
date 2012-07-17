@@ -41,7 +41,7 @@ define([
             // Dev - add 2 cubes
             this.cubes.add([
                 { size: 20 },
-                { origPos: new THREE.Vector3( 40, 0, 0 ) }
+                { position: new THREE.Vector3( 40, 0, 0 ) }
             ]);
 
         // Object Hover
@@ -51,7 +51,7 @@ define([
             this.setupObjSelection();
 
         // Object Movement
-            this.setupObjMovement();
+            this.setupObjManipulation();
 
             // Movement Reference Plane
             this.plane = new THREE.Mesh(
@@ -170,18 +170,13 @@ define([
             this.el.addEventListener( 'DOMMouseScroll', onMouseWheel, false );
             function onMouseWheel( event ) {
 
-                if ( event.wheelDeltaY )
-                    FOV -= event.wheelDeltaY * 0.05; // Webkit
+                // If there are selected objects, they will be scaled instead
+                if (canvas.selected.isEmpty()) {
 
-                else if (  event.wheelDelta )
-                    FOV -= event.wheelDelta * 0.05; // Opera / Explorer 9
-
-                else if (  event.detail )
-                    FOV += event.detail * 1.0; // Firefox
-
-                canvas.camera.projectionMatrix.makePerspective(
-                    FOV, W/H, 1, 1100
-                );
+                    canvas.camera.projectionMatrix.makePerspective(
+                        FOV += canvas.getScrollDelta(event), W/H, 1, 1100
+                    );
+                }
             }
         },
 
@@ -248,8 +243,8 @@ define([
             });
         },
 
-    // Object Movement/Rotation/Recursion
-        setupObjMovement: function () {
+    // Object Manipulation
+        setupObjManipulation: function () {
             var canvas = this
               , left, right;
 
@@ -354,6 +349,14 @@ define([
 
             // Prevent context menu on right-click
             canvas.$el.contextmenu( function () { return false; });
+
+            this.el.addEventListener( 'mousewheel',     onMouseWheel, false );
+            this.el.addEventListener( 'DOMMouseScroll', onMouseWheel, false );
+            function onMouseWheel( event ) {
+                if (!canvas.selected.isEmpty()) {
+                    canvas.selected.scaleAll(canvas.getScrollDelta(event));
+                }
+            }
         },
 
     // Utility
@@ -381,6 +384,12 @@ define([
 
             return new THREE.Ray(this.camera.position,
                   vector.subSelf(this.camera.position).normalize());
+        },
+
+        getScrollDelta: function (ev) {
+            if      ( ev.wheelDeltaY ) return -ev.wheelDeltaY * 0.05; // Webkit
+            else if ( ev.wheelDelta )  return -ev.wheelDelta * 0.05;  // Opera
+            else if ( ev.detail )      return  ev.detail * 1.0;       // Firefox
         }
     });
 });

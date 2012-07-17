@@ -17,7 +17,7 @@ define([
 
         initialize: function(attr){
             var size =     attr.size    || 20
-              , position = attr.origPos || new THREE.Vector3( 0, 0, 0 )
+              , position = attr.position || new THREE.Vector3( 0, 0, 0 )
               , obj = THREE.SceneUtils.createMultiMaterialObject(
                     new THREE.CubeGeometry(size, size, size),
                     [
@@ -45,8 +45,8 @@ define([
                 'shading': obj.children[0],
 
                 // Original position/rotation stored to be used as offset for movement
-                'origPos': obj.position,
-                'origRtn': obj.rotation,
+                'position': obj.position,
+                'rotation': obj.rotation,
 
                 // Cube states
                 'hovered': false,
@@ -76,44 +76,50 @@ define([
         move: function (movement, level) {
             level = level || 1;
 
-            var origPos = this.get('origPos')
+            var position = this.get('position')
               , child   = this.get('child');
 
-            this.setPosition(new THREE.Vector3(
-                    origPos.x + (movement.x * level),
-                    origPos.y + (movement.y * level),
-                    origPos.z + (movement.z * level)
-            ));
+            this.get('object').position = new THREE.Vector3(
+                    position.x + (movement.x * level),
+                    position.y + (movement.y * level),
+                    position.z + (movement.z * level)
+            );
 
             if (child) child.move(movement, level + 1);
         },
 
-        setPosition: function (position) {
-            this.get('object').position = position;
-        },
-
-        updatePosition: function () {
-            this.set('origPos', this.get('object').position);
-        },
-
         rotate: function (movement, mouseX, mouseY) {
             var speed = 30
-              , origRtn = this.get('origRtn')
+              , rotation = this.get('rotation')
               , x = movement.x, y = movement.y, z = movement.z;
 
             // TODO: Make object rotation more intuitive
             this.get('object').rotation = new THREE.Vector3(
-                origRtn.x + (Math.abs(movement.y * speed * 0.001) *
+                rotation.x + (Math.abs(movement.y * speed * 0.001) *
                             (z / (Math.abs(x) + Math.abs(z)))),
-                origRtn.y + (mouseX * speed * 0.0001),
-                origRtn.z + (Math.abs(movement.y * speed * 0.001) *
+                rotation.y + (mouseX * speed * 0.0001),
+                rotation.z + (Math.abs(movement.y * speed * 0.001) *
                            -(x / (Math.abs(x) + Math.abs(z))))
 
             );
         },
 
-        updateRotation: function () {
-            this.set('origRtn', this.get('object').rotation);
+        scale: function (factor) {
+            var scale = this.get('object').scale;
+            scale.x += factor * 0.01;
+            scale.y += factor * 0.01;
+            scale.z += factor * 0.01;
+        },
+
+        // move/rotate run constantly during a move operation.
+        // update(Move/Position) used after a move operation is
+        // completed so that the correct position/rotation will
+        // be used as a starting offset for the next move operation.
+        updatePosition: function () { this.update('position'); },
+        updateRotation: function () { this.update('rotation'); },
+
+        update: function (property) {
+            this.set( property, this.get('object')[property] );
         },
 
         recurse: function (limit) {
