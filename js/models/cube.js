@@ -67,6 +67,27 @@ define([
             this.set('selected', selectVal);
             if (selectVal) this.setColor(RED);
             else this.hover(this.get('hovered'));
+
+            var prnt = this.get('parent')
+
+            if (prnt && prnt.get('parent')) {
+                this.selectRecursion();
+            }
+        },
+
+        selectRecursion: function (type) {
+            var cube = this;
+
+            if (!type || type === 'parent') nextRelative('parent');
+            if (!type || type === 'child' ) nextRelative('child');
+
+            function nextRelative(type) {
+                var relative = cube.get(type);
+                if (relative) {
+                    relative.select();
+                    relative.selectRecursion(type);
+                }
+            }
         },
 
         setColor: function (color) {
@@ -140,6 +161,7 @@ define([
             if (limit < RECURSION_LIMIT) {
                 var child = this.clone();
                 this.set('child', child);
+                child.set('parent', this);
                 return [child].concat(child.recurse(limit + 1));
             }
 
