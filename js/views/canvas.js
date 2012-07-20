@@ -220,7 +220,6 @@ define([
             // Set object properties correctly on select
             canvas.selected.on('add', function (cube) {
                 cube.select(true);
-                console.log(cube);
             });
 
             canvas.$el.mousedown( function (e) {
@@ -278,7 +277,12 @@ define([
 
                     } else {
                         var recursive = false
-                          , startX = e.clientX;
+                          , startX = e.clientX
+                          , startY = e.clientY
+
+                        // Offsets used by movement handler
+                          , movSoFar = new THREE.Vector3(0, 0, 0)
+                          , xSoFar = 0, ySoFar = 0;
 
                         canvas.$el.off('mousemove.mov');
                         canvas.$el.on('mousemove.mov', onMouseMove);
@@ -292,30 +296,50 @@ define([
                                 canvas.selected.deselectAll();
                                 recursive = false;
 
-                            } else if (e.which === 1) {
+                            } else {
                                 canvas.$el.off('mousemove.mov');
                                 canvas.$el.off('mouseup.mov');
-                                canvas.selected.updatePositions();
 
-                            } else if (e.which === 3) {
-                                canvas.$el.off('mousemove.mov');
-                                canvas.$el.off('mouseup.mov');
-                                canvas.selected.updateRotations();
+                                // Reset offsets
+                                movSoFar = new THREE.Vector3(0, 0, 0);
+                                xSoFar = 0, ySoFar = 0;
+
                             }
                         });
+
+
 
                     // Mouse Movement Handler
                         function onMouseMove(e) {
                             var x = e.clientX
-                              , y = e.clientY
-                              , mouseX = x - startX
-                              , mouseY = y - startY;
+                              , y = e.clientY;
 
                             if (!canvas.selected.isEmpty()) {
                                 var intersect = canvas.getIntersectBetween(
                                         x, y, canvas.plane)
-                                  , movement = intersect.point.subSelf(
+
+                                // Details of the mouse movement
+                                  , movement = intersect.point.subSelf( // 3d
                                         canvas.planeOffset)
+                                  , mouseX = x - startX // x distance on screen
+                                  , mouseY = y - startY // y distance on screen
+
+                                // Create copies
+                                  , movCopy = _.clone(movement)
+                                  , xCopy   = mouseX
+                                  , yCopy   = mouseY;
+
+                                // Isolate movement since last move event
+                                movement.x -= movSoFar.x;
+                                movement.y -= movSoFar.y;
+                                movement.z -= movSoFar.z;
+                                mouseX     -= xSoFar;
+                                mouseY     -= ySoFar;
+
+                                // Save original movement
+                                movSoFar = movCopy;
+                                xSoFar   = xCopy;
+                                ySoFar   = yCopy;
 
                                 if (left && right && !recursive) {
                                     canvas.cubes.add(
