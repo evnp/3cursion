@@ -36,13 +36,18 @@ define([
         // Cubes
             this.hovered  = null;
             this.selected = new CubeCollection();
-            this.cubes    = new CubeCollection([], this.scene);
+            this.cubes    = new CubeCollection();
 
             // Dev - add 2 cubes
             this.cubes.add([
                 { size: 20 },
                 { position: new THREE.Vector3( 40, 0, 0 ) }
             ]);
+            // Add cubes to the scene
+            var scene = this.scene;
+            this.cubes.each(function (cube) {
+                scene.add(cube.get('object'));
+            });
 
         // Object Hover
             this.setupObjHover();
@@ -307,8 +312,6 @@ define([
                             }
                         });
 
-
-
                     // Mouse Movement Handler
                         function onMouseMove(e) {
                             var x = e.clientX
@@ -342,6 +345,7 @@ define([
                                 ySoFar   = yCopy;
 
                                 if (left && right && !recursive) {
+
                                     canvas.cubes.add(
                                         canvas.selected.recurseAll(movement)
                                     );

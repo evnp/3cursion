@@ -102,12 +102,10 @@ define([
     // Object Manipulation - corrects recursion appropriately
 
         move: function (movement) {
-
-
             this.changePosition(movement);
 
             // If the move needs to be recursive...
-            var child = this.get('child');
+            //var child = this.get('child');
             //if (child) child.move(movement);
         },
 
@@ -173,13 +171,23 @@ define([
 
         recurse: function (level) {
             level = level || 0;
+            var child = this.clone();
+
+            console.log(child.get('object'));
+
+            // If first child, unlink position vector so that the
+            // first parent can be used to move the entire recursive stack.
+            if (!level) child.get('object').position =
+                new THREE.Vector3(0, 0, 0);
+
+            console.log(child.get('object'));
 
             if (level < RECURSION_LIMIT) {
-                var child = this.clone();
                 this.set('child', child);
 
                 // Add the child's Object3D to the cube's Object3D
-                this.get('object').addChild(child.get('object'));
+                console.log(this.get('object').position === child.get('object').position);
+                this.get('object').add(child.get('object'));
 
                 // Return the new child along with all its ancestors
                 return [child].concat(child.recurse(level + 1));
