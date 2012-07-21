@@ -11,7 +11,8 @@ define([
       , RED   = 0xff0000
       , GREY  = 0xD3D3D3
 
-      , RECURSION_LIMIT = 50;
+    // If WebGL is unavaliable, limit iteration for performance.
+      , RECURSION_LIMIT = Detector.webgl ? 500 : 50;
 
     var Cube = Backbone.Model.extend({
 
