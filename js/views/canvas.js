@@ -220,12 +220,18 @@ define([
 
     // Object Selection
         setupObjSelection: function () {
-            var canvas = this;
+            var canvas   = this
+              , cubes    = this.cubes
+              , selected = this.selected;
 
-            // Set object properties correctly on select
-            canvas.selected.on('add', function (cube) {
-                cube.select(true);
-            });
+            // Automatically set cube selection property
+            selected.on('add',    function (cube) { cube.select(true);  });
+            selected.on('remove', function (cube) { cube.select(false); });
+
+            // Automatically add/remove cubes on selection/deselection
+            cubes.on('change:selected', function (cube, value) {
+                selected[ value ? 'add' : 'remove' ](cube);
+            })
 
             canvas.$el.mousedown( function (e) {
                 if (canvas.hovered) {

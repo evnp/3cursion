@@ -35,6 +35,7 @@ define([
             obj.position = position;
 
             this.set({
+                'size': size,
 
                 // Main cube object is used for cube movement
                 'object': obj,
@@ -73,26 +74,25 @@ define([
             if (selectVal) this.setColor(RED);
             else this.hover(this.get('hovered'));
 
-            var prnt = this.get('parent')
-
-            if (prnt && prnt.get('parent')) {
-                this.selectRecursion();
+            // Prevent root + children being selected simultaneously
+            if (selectVal) {
+                if (!this.get('parent'))
+                     this.deselectChildren();
+                else this.deselectRoot();
             }
+
+            return this;
         },
 
-        selectRecursion: function (type) {
-            var cube = this;
+        deselectChildren: function () {
+            var child = this.get('child');
+            if (child) child.select(false).deselectChildren();
+        },
 
-            if (!type || type === 'parent') nextRelative('parent');
-            if (!type || type === 'child' ) nextRelative('child');
-
-            function nextRelative(type) {
-                var relative = cube.get(type);
-                if (relative) {
-                    relative.select();
-                    relative.selectRecursion(type);
-                }
-            }
+        deselectRoot: function () {
+            var parnt = this.get('parent');
+            if (parnt) parnt.deselectRoot();
+            else this.select(false);
         },
 
         setColor: function (color) {
@@ -172,22 +172,17 @@ define([
 
         recurse: function (level) {
             level = level || 0;
-            var child = this.clone();
 
-            console.log(child.get('object'));
-
-            // If first child, unlink position vector so that the
+            // If first child, vectors should not be linked so that the
             // first parent can be used to move the entire recursive stack.
-            if (!level) child.get('object').position =
-                new THREE.Vector3(0, 0, 0);
-
-            console.log(child.get('object'));
+            var child = level > 0 ? this.clone() :
+                    new Cube({ size: this.get('size') });
 
             if (level < RECURSION_LIMIT) {
                 this.set('child', child);
+                child.set('parent', this);
 
                 // Add the child's Object3D to the cube's Object3D
-                console.log(this.get('object').position === child.get('object').position);
                 this.get('object').add(child.get('object'));
 
                 // Return the new child along with all its ancestors
