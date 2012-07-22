@@ -10,9 +10,13 @@ define([
       , WHITE = 0xffffff
       , RED   = 0xff0000
       , GREY  = 0xD3D3D3
+      , DARKGREY = 0xA9A9A9
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 500 : 50;
+      , RECURSION_LIMIT = Detector.webgl ? 500 : 50
+
+    // Show or hide wireframes
+      , SHOW_WIREFRAME = false;
 
     var Cube = Backbone.Model.extend({
 
@@ -23,16 +27,17 @@ define([
               , scale    = attr.scale    || new THREE.Vector3( 1, 1, 1 )
               , obj = THREE.SceneUtils.createMultiMaterialObject(
                     new THREE.CubeGeometry(size, size, size),
-                    [
-                        new THREE.MeshLambertMaterial({
-                            color: WHITE
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: GREY,
-                            wireframe: true
-                        })
-                    ]
+                    [new THREE.MeshLambertMaterial({
+                        color: DARKGREY
+                    }), new THREE.MeshBasicMaterial({
+                        color: DARKGREY,
+                        wireframe: true,
+                        visible: false
+                    })]
                 );
+
+            // Make wireframe invisible
+            if (!SHOW_WIREFRAME) obj.children[1].visible = false;
 
             obj.position = position;
             obj.rotation = rotation;
@@ -70,7 +75,13 @@ define([
 
         hover: function (hoverVal) {
             this.set('hovered', hoverVal);
-            if (!this.get('selected')) this.setColor( hoverVal ? BLACK : GREY );
+            if (!this.get('selected')) {
+                if (SHOW_WIREFRAME) this.setColor( hoverVal ? BLACK : GREY );
+                else {
+                    this.setWireframe(hoverVal);
+                    this.setColor(BLACK);
+                }
+            }
         },
 
         select: function (selectVal) {
@@ -101,6 +112,10 @@ define([
 
         setColor: function (color) {
             this.get('wireframe').material.color.setHex(color);
+        },
+
+        setWireframe: function (bool) {
+            this.get('wireframe').visible = bool;
         },
 
 
