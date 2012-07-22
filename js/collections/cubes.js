@@ -12,14 +12,14 @@ define([
         model: Cube,
 
 
-        initialize: function (models, scene) {
+        /*initialize: function (models, scene) {
             // Automatically add cube instances to scene
-            /*if (scene) {
+            if (scene) {
                 this.on('add', function (cube) {
                     scene.add(cube.get('object'));
                 });
-            }*/
-        },
+            }
+        },*/
 
         wireframes: function () {
             return this.pluck('wireframe');

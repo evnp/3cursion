@@ -19,6 +19,8 @@ define([
         initialize: function(attr){
             var size =     attr.size    || 20
               , position = attr.position || new THREE.Vector3( 0, 0, 0 )
+              , rotation = attr.rotation || new THREE.Vector3( 0, 0, 0 )
+              , scale    = attr.scale    || new THREE.Vector3( 1, 1, 1 )
               , obj = THREE.SceneUtils.createMultiMaterialObject(
                     new THREE.CubeGeometry(size, size, size),
                     [
@@ -33,6 +35,8 @@ define([
                 );
 
             obj.position = position;
+            obj.rotation = rotation;
+            obj.scale    = scale;
 
             this.set({
                 'size': size,
@@ -158,7 +162,7 @@ define([
             // Accept object or number for val
             if (val instanceof Object) {
                 x = val.x; y = val.y; z = val.z;
-            } else x = y = x = val;
+            } else x = y = z = val;
 
             attr = this.get(attr);
 
