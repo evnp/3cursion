@@ -356,8 +356,14 @@ define([
                                         canvas.selected.recurseAll(movement)
                                     );
 
-                                    var children =
-                                        canvas.selected.pluck('child');
+                                    // TODO: fix so that correct "1st child" cubes are
+                                    // selected on 2nd level recursion
+                                    var children = [];
+                                    _.each(canvas.selected.pluck('children'),
+                                        function (cubes) {
+                                            children = children.concat(cubes);
+                                        }
+                                    );
 
                                     canvas.selected.deselectAll();
                                     canvas.selected.add(children);

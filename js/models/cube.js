@@ -2,6 +2,7 @@ define([
     'jquery',
     'underscore',
     'backbone',
+
     'three'
 
 ], function($, _, Backbone) {
@@ -12,26 +13,23 @@ define([
       , GREY  = 0xD3D3D3
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 500 : 50;
+      , RECURSION_LIMIT = Detector.webgl ? 10 : 10;
 
     var Cube = Backbone.Model.extend({
 
         initialize: function(attr){
-            var size =     attr.size    || 20
+            var size =     attr.size     || 20
               , position = attr.position || new THREE.Vector3( 0, 0, 0 )
               , rotation = attr.rotation || new THREE.Vector3( 0, 0, 0 )
               , scale    = attr.scale    || new THREE.Vector3( 1, 1, 1 )
               , obj = THREE.SceneUtils.createMultiMaterialObject(
                     new THREE.CubeGeometry(size, size, size),
-                    [
-                        new THREE.MeshLambertMaterial({
-                            color: WHITE
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: GREY,
-                            wireframe: true
-                        })
-                    ]
+                    [new THREE.MeshLambertMaterial({
+                        color: WHITE
+                    }), new THREE.MeshBasicMaterial({
+                        color: GREY,
+                        wireframe: true
+                    })]
                 );
 
             obj.position = position;
@@ -60,7 +58,7 @@ define([
                 'selected': false,
 
                 // Recursion
-                'child': null,
+                'children': [],
                 'parent': null
             });
         },
@@ -89,8 +87,10 @@ define([
         },
 
         deselectChildren: function () {
-            var child = this.get('child');
-            if (child) child.select(false).deselectChildren();
+            var children = this.get('children');
+            _.each( children, function (cube) {
+                cube.select(false).deselectChildren();
+            });
         },
 
         deselectRoot: function () {
@@ -177,20 +177,29 @@ define([
         recurse: function (level) {
             level = level || 0;
 
+            var newCubes = []
+              , children = this.get('children')
+
             // If first child, vectors should not be linked so that the
             // first parent can be used to move the entire recursive stack.
-            var child = level > 0 ? this.clone() :
+              , child = level > 0 ? this.clone() :
                     new Cube({ size: this.get('size') });
 
             if (level < RECURSION_LIMIT) {
-                this.set('child', child);
+
+                // Recursively apply recurse operation to children
+                _.each( children, function (cube) {
+                    newCubes = newCubes.concat(cube.recurse(level));
+                });
+
+                children.push(child);
                 child.set('parent', this);
 
                 // Add the child's Object3D to the cube's Object3D
                 this.get('object').add(child.get('object'));
 
                 // Return the new child along with all its ancestors
-                return [child].concat(child.recurse(level + 1));
+                return [child].concat(child.recurse(level + 1)).concat(newCubes);
 
             } else return [];
         }
