@@ -352,21 +352,20 @@ define([
 
                                 if (left && right && !recursive) {
 
+                                    var oldChildren = _.union(
+                                            canvas.selected.pluck('children'));
+
+                                    console.log(oldChildren);
+
                                     canvas.cubes.add(
                                         canvas.selected.recurseAll(movement)
                                     );
 
-                                    // TODO: fix so that correct "1st child" cubes are
-                                    // selected on 2nd level recursion
-                                    var children = [];
-                                    _.each(canvas.selected.pluck('children'),
-                                        function (cubes) {
-                                            children = children.concat(cubes);
-                                        }
-                                    );
+                                    var newChildren = _.union(
+                                            canvas.selected.pluck('children'));
 
                                     canvas.selected.deselectAll();
-                                    canvas.selected.add(children);
+                                    canvas.selected.add(newChildren);
 
                                     recursive = true;
 
