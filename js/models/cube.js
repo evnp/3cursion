@@ -220,7 +220,24 @@ define([
                 return [child].concat(child.recurse(level + 1)).concat(newCubes);
 
             } else return [];
+        },
+
+        getRoot: function () {
+            var parnt = this.get('parent');
+            return parnt ? parnt.getRelated('parent') : this;
+        },
+
+        getAncestors: function () {
+            var children = this.get('children');
+            return [this].concat(_.map( children, function (cube) {
+                return cube.getRelated('children');
+            }));
+        },
+
+        getRelated: function (type) {
+            return this.getRoot().getAncestors();
         }
+
     });
 
     return Cube;
