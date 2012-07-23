@@ -259,6 +259,10 @@ define([
             var canvas = this
               , left, right;
 
+            canvas.$el.on('keydown', function (e) {
+                console.log(e.which);
+            });
+
             canvas.$el.mousedown(function (e) {
 
             // Mouse Button States
