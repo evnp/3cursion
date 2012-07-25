@@ -257,10 +257,20 @@ define([
     // Object Manipulation
         setupObjManipulation: function () {
             var canvas = this
-              , left, right;
+              , doc = $(document)
+              , left, right, ctrl;
 
-            canvas.$el.on('keydown', function (e) {
-                console.log(e.which);
+            // Recursion - alternate to mouse controls
+            doc.on('keydown', function (e) {
+                if (e.which === 17) { // CTRL
+                    ctrl = true;
+                    doc.on('keyup.ctrl', function (e) {
+                        if (e.which === 17) {
+                            doc.off('keyup.ctrl');
+                            ctrl = false;
+                        }
+                    });
+                }
             });
 
             canvas.$el.mousedown(function (e) {
@@ -354,7 +364,7 @@ define([
                                 xSoFar   = xCopy;
                                 ySoFar   = yCopy;
 
-                                if (left && right && !recursive) {
+                                if (((left && right) || ctrl) && !recursive) {
 
                                     canvas.cubes.add(
                                         canvas.selected.recurseAll(movement)
