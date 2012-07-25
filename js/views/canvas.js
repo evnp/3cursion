@@ -356,15 +356,20 @@ define([
 
                                 if (left && right && !recursive) {
 
+                                    var oldChildren = _.union(
+                                            canvas.selected.pluck('children'));
+
+                                    console.log(oldChildren);
+
                                     canvas.cubes.add(
                                         canvas.selected.recurseAll(movement)
                                     );
 
-                                    var children =
-                                        canvas.selected.pluck('child');
+                                    var newChildren = _.union(
+                                            canvas.selected.pluck('children'));
 
                                     canvas.selected.deselectAll();
-                                    canvas.selected.add(children);
+                                    canvas.selected.add(newChildren);
 
                                     recursive = true;
 

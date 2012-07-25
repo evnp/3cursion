@@ -11,7 +11,6 @@ define([
 
         model: Cube,
 
-
         /*initialize: function (models, scene) {
             // Automatically add cube instances to scene
             if (scene) {
