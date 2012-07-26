@@ -56,16 +56,12 @@ define([
             this.each( function (cube) { cube.scale(factor); });
         },
 
-        recurseAll: function (movement) {
-            var children = [];
-
+        recurseAll: function () {
             // Collect added children from each cube's recursion and
             // return them all, so that they can be added to the scene.
-            this.each( function (cube) {
-                children = children.concat(cube.recurse());
-            });
-
-            return children;
+            return _.flatten( this.map( function (cube) {
+                return cube.recurse();
+            }));
         },
 
         deselectAll: function () {

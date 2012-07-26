@@ -14,7 +14,7 @@ define([
       , DARKGREY = 0xA9A9A9
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 500 : 200
+      , RECURSION_LIMIT = Detector.webgl ? 10 : 10
 
     // Show or hide wireframes
       , SHOW_WIREFRAME = false;
@@ -224,18 +224,20 @@ define([
 
         getRoot: function () {
             var parnt = this.get('parent');
-            return parnt ? parnt.getRelated('parent') : this;
+            return parnt ? parnt.getRoot('parent') : this;
         },
 
-        getAncestors: function () {
+        getDescendants: function () {
             var children = this.get('children');
-            return [this].concat(_.map( children, function (cube) {
-                return cube.getRelated('children');
-            }));
+            return [this].concat(
+                _.flatten( _.map( children, function (cube) {
+                    return cube.getDescendants();
+                }))
+            );
         },
 
         getRelated: function (type) {
-            return this.getRoot().getAncestors();
+            return this.getRoot().getDescendants();
         }
 
     });

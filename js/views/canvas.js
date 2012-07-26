@@ -321,68 +321,79 @@ define([
 
                             }
                         });
+                    }
+                }
 
-                    // Mouse Movement Handler
-                        function onMouseMove(e) {
-                            var x = e.clientX
-                              , y = e.clientY;
+            // Mouse Movement Handler
+                function onMouseMove(e) {
+                    var x = e.clientX
+                      , y = e.clientY;
 
-                            if (!canvas.selected.isEmpty()) {
-                                var intersect = canvas.getIntersectBetween(
-                                        x, y, canvas.plane)
+                    if (!canvas.selected.isEmpty()) {
+                        var intersect = canvas.getIntersectBetween(
+                                x, y, canvas.plane)
 
-                                // Details of the mouse movement
-                                  , movement = intersect.point.subSelf( // 3d
-                                        canvas.planeOffset)
-                                  , mouseX = x - startX // x distance on screen
-                                  , mouseY = y - startY // y distance on screen
+                        // Details of the mouse movement
+                          , movement = intersect.point.subSelf( // 3d
+                                canvas.planeOffset)
+                          , mouseX = x - startX // x distance on screen
+                          , mouseY = y - startY // y distance on screen
 
-                                // Create copies
-                                  , movCopy = _.clone(movement)
-                                  , xCopy   = mouseX
-                                  , yCopy   = mouseY;
+                        // Create copies
+                          , movCopy = _.clone(movement)
+                          , xCopy   = mouseX
+                          , yCopy   = mouseY;
 
-                                // Isolate movement since last move event
-                                movement.x -= movSoFar.x;
-                                movement.y -= movSoFar.y;
-                                movement.z -= movSoFar.z;
-                                mouseX     -= xSoFar;
-                                mouseY     -= ySoFar;
+                        // Isolate movement since last move event
+                        movement.x -= movSoFar.x;
+                        movement.y -= movSoFar.y;
+                        movement.z -= movSoFar.z;
+                        mouseX     -= xSoFar;
+                        mouseY     -= ySoFar;
 
-                                // Save original movement
-                                movSoFar = movCopy;
-                                xSoFar   = xCopy;
-                                ySoFar   = yCopy;
+                        // Save original movement
+                        movSoFar = movCopy;
+                        xSoFar   = xCopy;
+                        ySoFar   = yCopy;
 
-                                if (left && right && !recursive) {
+                        if (left && right && !recursive) {
 
-                                    var oldChildren = _.union(
-                                            canvas.selected.pluck('children'));
+                            // Get set of cubes that will be repeated
+                            var toRecurse = _.uniq(_.flatten(
+                                canvas.selected.map( function (cube) {
+                                    return cube.getRelated();
+                                })
+                            ));
 
-                                    console.log(oldChildren);
-
-                                    canvas.cubes.add(
-                                        canvas.selected.recurseAll(movement)
-                                    );
-
-                                    var newChildren = _.union(
-                                            canvas.selected.pluck('children'));
-
-                                    canvas.selected.deselectAll();
-                                    canvas.selected.add(newChildren);
-
-                                    recursive = true;
-
-                                } else if (left || recursive) {
-                                    canvas.selected.moveAll(movement);
-
-                                } else if (right) {
-                                    canvas.selected.rotateAll(
-                                        movement, mouseX, mouseY);
+                            // Repeat the cubes, adding all the copies
+                            // to the main cube collection
+                            canvas.cubes.add(_.flatten(
+                                toRecurse.map( function (cube) {
+                                    return cube.recurse();
                                 }
-                            }
-                        }
+                            )));
 
+                            // Prepare for new selection
+                            canvas.selected.deselectAll();
+
+                            // Get all immediate children of the original
+                            // cube set; select these child cubes for movement
+                            canvas.selected.add(_.flatten(_.map(
+                                toRecurse, function (cube) {
+                                    return cube.get('children');
+                                }
+                            )));
+
+                            // Set flag to activate normal cube movement
+                            recursive = true;
+
+                        } else if (left || recursive) {
+                            canvas.selected.moveAll(movement);
+
+                        } else if (right) {
+                            canvas.selected.rotateAll(
+                                movement, mouseX, mouseY);
+                        }
                     }
                 }
             });
