@@ -358,8 +358,11 @@ define([
 
                         if (left && right && !recursive) {
 
-                            // Get set of cubes that will be repeated
-                            var toRecurse = _.uniq(_.flatten(
+                            // Get set of cubes that will be repeated.
+                            // For performance, prevent 2nd lvl 
+                            // recursion unless WebGL is available.
+                            var toRecurse = RENDERER !== 'WebGLRenderer' ?
+                                canvas.selected.toArray() : _.uniq(_.flatten(
                                 canvas.selected.map( function (cube) {
                                     return cube.getRelated();
                                 })
