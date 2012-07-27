@@ -262,10 +262,10 @@ define([
 
             // Recursion - alternate to mouse controls
             doc.on('keydown', function (e) {
-                if (e.which === 17) { // CTRL
+                if (e.ctrlKey || e.metaKey) { // CTRL
                     ctrl = true;
                     doc.on('keyup.ctrl', function (e) {
-                        if (e.which === 17) {
+                        if (e.ctrlKey || e.metaKey) {
                             doc.off('keyup.ctrl');
                             ctrl = false;
                         }
