@@ -13,3 +13,13 @@ html, body, #container, #content, #canvas {
     letter-spacing: .24em;
 }
 
+#controls {
+    z-index: -1;
+    margin: 24px;
+    position: absolute;
+    bottom: -16px;
+    font: 16px/16px futura-pt, Arial, Helvetica, sans-serif;
+    letter-spacing: .1em;
+}
+
+

@@ -257,10 +257,20 @@ define([
     // Object Manipulation
         setupObjManipulation: function () {
             var canvas = this
-              , left, right;
+              , doc = $(document)
+              , left, right, ctrl;
 
-            canvas.$el.on('keydown', function (e) {
-                console.log(e.which);
+            // Recursion - alternate to mouse controls
+            doc.on('keydown', function (e) {
+                if (e.ctrlKey || e.metaKey) { // CTRL
+                    ctrl = true;
+                    doc.on('keyup.ctrl', function (e) {
+                        if (e.ctrlKey || e.metaKey) {
+                            doc.off('keyup.ctrl');
+                            ctrl = false;
+                        }
+                    });
+                }
             });
 
             canvas.$el.mousedown(function (e) {
@@ -362,7 +372,9 @@ define([
                             // For performance, prevent 2nd lvl 
                             // recursion unless WebGL is available.
                             var toRecurse = RENDERER !== 'WebGLRenderer' ?
-                                canvas.selected.toArray() : _.uniq(_.flatten(
+                                canvas.selected.toArray() :
+                                             _.uniq(
+                                          _.flatten(
                                 canvas.selected.map( function (cube) {
                                     return cube.getRelated();
                                 })
@@ -370,8 +382,10 @@ define([
 
                             // Repeat the cubes, adding all the copies
                             // to the main cube collection
-                            canvas.cubes.add(_.flatten(
-                                toRecurse.map( function (cube) {
+                            canvas.cubes.add(
+                                   _.flatten(
+                                       _.map(
+                                toRecurse, function (cube) {
                                     return cube.recurse();
                                 }
                             )));
@@ -381,7 +395,9 @@ define([
 
                             // Get all immediate children of the original
                             // cube set; select these child cubes for movement
-                            canvas.selected.add(_.flatten(_.map(
+                            canvas.selected.add(
+                                      _.flatten(
+                                          _.map(
                                 toRecurse, function (cube) {
                                     return cube.get('children');
                                 }
