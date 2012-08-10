@@ -369,18 +369,23 @@ define([
                         if (left && right && !recursive) {
 
                             // Get set of cubes that will be repeated.
-                            // For performance, prevent 2nd lvl
-                            // recursion unless WebGL is available.
-                            var toRecurse = false ? //RENDERER !== 'WebGLRenderer' ?
-                                canvas.selected.toArray() : canvas.flatMap(
+                            var toRecurse = canvas.flatMap(
                                 canvas.selected, function (cube) {
                                     return cube.getRelated();
-                                }, true);
+                                }, true
+                            );
+
+                            // Get vectors used to link child cubes
+                            var vectors = {
+                                position: new THREE.Vector3( 0, 0, 0 ),
+                                rotation: new THREE.Vector3( 0, 0, 0 ),
+                                scale:    new THREE.Vector3( 1, 1, 1 )
+                            };
 
                             // Repeat the cubes
                             var copies = canvas.flatMap(
                                 toRecurse, function (cube) {
-                                    return cube.recurse(start);
+                                    return cube.recurse(0, vectors);
                                 }
                             );
 

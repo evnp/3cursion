@@ -14,7 +14,7 @@ define([
       , DARKGREY = 0xA9A9A9
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 5 : 5
+      , RECURSION_LIMIT = Detector.webgl ? 5 : 5 
 
     // Show or hide wireframes
       , SHOW_WIREFRAME = false;
@@ -192,16 +192,23 @@ define([
 
     // Object Recursion
 
-        recurse: function (level) {
-            level = level || 0;
+        recurse: function (level, vectors) {
+            level   = level   || 0;
+            vectors = vectors || {};
+            // If vectors are passed, they will be used to
+            // link all the recursed children.
 
-            var newCubes = []
-              , children = this.get('children')
+            var children = this.get('children')
 
             // If first child, vectors should not be linked so that the
             // first parent can be used to move the entire recursive stack.
               , child = level > 0 ? this.clone() :
-                    new Cube({ size: this.get('size') });
+                    new Cube({
+                        size: this.get('size'),
+                        position: vectors.position,
+                        rotation: vectors.rotation,
+                        scale:    vectors.scale
+                    });
 
             if (level < RECURSION_LIMIT) {
 
@@ -212,7 +219,7 @@ define([
                 this.get('object').add(child.get('object'));
 
                 // Return the new child along with all its ancestors
-                return [child].concat(child.recurse(level + 1)).concat(newCubes);
+                return [child].concat(child.recurse(level + 1, vectors));
 
             } else return [];
         },
