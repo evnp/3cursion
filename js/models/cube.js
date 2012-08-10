@@ -14,7 +14,7 @@ define([
       , DARKGREY = 0xA9A9A9
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 10 : 10
+      , RECURSION_LIMIT = Detector.webgl ? 5 : 5
 
     // Show or hide wireframes
       , SHOW_WIREFRAME = false;
@@ -205,11 +205,6 @@ define([
 
             if (level < RECURSION_LIMIT) {
 
-                // Recursively apply recurse operation to children
-                _.each( children, function (cube) {
-                    newCubes = newCubes.concat(cube.recurse(level));
-                });
-
                 children.push(child);
                 child.set('parent', this);
 
@@ -230,10 +225,12 @@ define([
         getDescendants: function () {
             var children = this.get('children');
             return [this].concat(
-                _.flatten( _.map( children, function (cube) {
+                       _.flatten(
+                           _.map(
+                children, function (cube) {
                     return cube.getDescendants();
-                }))
-            );
+                }
+            )));
         },
 
         getRelated: function (type) {

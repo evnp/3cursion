@@ -369,39 +369,37 @@ define([
                         if (left && right && !recursive) {
 
                             // Get set of cubes that will be repeated.
-                            // For performance, prevent 2nd lvl 
+                            // For performance, prevent 2nd lvl
                             // recursion unless WebGL is available.
-                            var toRecurse = RENDERER !== 'WebGLRenderer' ?
-                                canvas.selected.toArray() :
-                                             _.uniq(
-                                          _.flatten(
-                                canvas.selected.map( function (cube) {
+                            var toRecurse = false ? //RENDERER !== 'WebGLRenderer' ?
+                                canvas.selected.toArray() : canvas.flatMap(
+                                canvas.selected, function (cube) {
                                     return cube.getRelated();
-                                })
-                            ));
+                                }, true);
 
-                            // Repeat the cubes, adding all the copies
-                            // to the main cube collection
-                            canvas.cubes.add(
-                                   _.flatten(
-                                       _.map(
+                            // Repeat the cubes
+                            var copies = canvas.flatMap(
                                 toRecurse, function (cube) {
-                                    return cube.recurse();
+                                    return cube.recurse(start);
                                 }
-                            )));
+                            );
+
+                            // Add all the recursed copies
+                            // to the main cube collection
+                            canvas.cubes.add(copies);
 
                             // Prepare for new selection
                             canvas.selected.deselectAll();
 
-                            // Get all immediate children of the original
-                            // cube set; select these child cubes for movement
-                            canvas.selected.add(
-                                      _.flatten(
-                                          _.map(
-                                toRecurse, function (cube) {
+                            // Get the immediate children created
+                            // by the recursive operation
+                            // and select them.
+                            canvas.selected.add(_.intersection(
+                                copies,
+                                canvas.flatMap( toRecurse, function (cube) {
                                     return cube.get('children');
-                                }
-                            )));
+                                })
+                            ));
 
                             // Set flag to activate normal cube movement
                             recursive = true;
@@ -460,6 +458,13 @@ define([
             if      ( ev.wheelDeltaY ) return -ev.wheelDeltaY * 0.05; // Webkit
             else if ( ev.wheelDelta )  return -ev.wheelDelta * 0.05;  // Opera
             else if ( ev.detail )      return  ev.detail * 1.0;       // Firefox
+        },
+
+        flatMap: function (list, fn, unique) {
+            var results = list instanceof Backbone.Collection ?
+                _.flatten(list.map(fn))   :
+                _.flatten(_.map(list, fn));
+            return unique ? _.uniq(results) : results;
         }
     });
 });
