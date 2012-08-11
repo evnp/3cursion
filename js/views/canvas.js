@@ -38,27 +38,8 @@ define([
             this.selected = new CubeCollection();
             this.cubes    = new CubeCollection();
 
-            // Dev - add 2 cubes
-            this.cubes.add([
-                { size: 20 },
-                { position: new THREE.Vector3( 40, 0, 0 ) }
-            ]);
-            // Add cubes to the scene
-            var scene = this.scene;
-            this.cubes.each(function (cube) {
-                scene.add(cube.get('object'));
-            });
-
-        // Cube Hover
-            this.setupCubeHover();
-
-        // Cube Selection
-            this.setupCubeSelection();
-
-        // Cube Movement
-            this.setupCubeManipulation();
-
-            // Movement Reference Plane
+        // Reference Plane
+        // used to determine 3D mouse positions for cube creation/movement
             this.plane = new THREE.Mesh(
                 new THREE.PlaneGeometry( 2000, 2000, 8, 8 ),
                 new THREE.MeshBasicMaterial({
@@ -80,6 +61,17 @@ define([
 
         // Projector - for establishing mouse-object intersections
             this.projector = new THREE.Projector();
+
+        // Cube Creation/Deletion
+            this.setupCubeCreation();
+            this.setupCubeDeletion();
+
+        // Cube Hover/Selection
+            this.setupCubeHover();
+            this.setupCubeSelection();
+
+        // Cube Manipulation
+            this.setupCubeManipulation();
 
         // Camera
             this.camera = new THREE.PerspectiveCamera(FOV, this.w/this.h, 1, 1000);
@@ -202,7 +194,7 @@ define([
         setupCubeHover: function () {
             var canvas = this;
 
-            canvas.$el.mousemove(function (e) {
+            canvas.$el.mousemove( function (e) {
                 var hovered = canvas.getHoveredAt(e.clientX, e.clientY);
 
                 // If the hovered object has changed,
@@ -251,6 +243,45 @@ define([
                         ).subSelf(canvas.plane.position);
                     }
                 }
+            });
+        },
+
+    // Cube Creation
+        setupCubeCreation: function () {
+            var canvas = this;
+
+            canvas.cubes.on('add', function (cube) {
+                // Don't add recursive child cubes to the scene;
+                // they are already being added through their Object3D
+                if (!cube.get('parent'))
+                    canvas.scene.add(cube.get('object'));
+            });
+
+            canvas.$el.dblclick( function (e) {
+                if (!canvas.hovered) {
+                    var x = e.clientX
+                      , y = e.clientY;
+
+                    canvas.cubes.add({
+                        position: canvas.getIntersectBetween(
+                            x, y, canvas.plane).point
+                    });
+                }
+            });
+        },
+
+    // Cube Deletion
+        setupCubeDeletion: function () {
+            var canvas = this;
+
+            canvas.cubes.on('remove', function (cube) {
+                var prnt = cube.get('parent');
+                if (!prnt) canvas.scene.remove(cube.get('object'));
+                else prnt.get('object').remove(cube.get('object'));
+            });
+
+            canvas.$el.dblclick( function (e) {
+                if (canvas.hovered) canvas.cubes.remove(canvas.hovered);
             });
         },
 
