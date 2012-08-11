@@ -49,14 +49,14 @@ define([
                 scene.add(cube.get('object'));
             });
 
-        // Object Hover
-            this.setupObjHover();
+        // Cube Hover
+            this.setupCubeHover();
 
-        // Object Selection
-            this.setupObjSelection();
+        // Cube Selection
+            this.setupCubeSelection();
 
-        // Object Movement
-            this.setupObjManipulation();
+        // Cube Movement
+            this.setupCubeManipulation();
 
             // Movement Reference Plane
             this.plane = new THREE.Mesh(
@@ -198,8 +198,8 @@ define([
             this.camera.lookAt(this.camera.target);
         },
 
-    // Object Hover
-        setupObjHover: function () {
+    // Cube Hover
+        setupCubeHover: function () {
             var canvas = this;
 
             canvas.$el.mousemove(function (e) {
@@ -218,8 +218,8 @@ define([
             });
         },
 
-    // Object Selection
-        setupObjSelection: function () {
+    // Cube Selection
+        setupCubeSelection: function () {
             var canvas   = this
               , cubes    = this.cubes
               , selected = this.selected;
@@ -254,8 +254,8 @@ define([
             });
         },
 
-    // Object Manipulation
-        setupObjManipulation: function () {
+    // Cube Manipulation
+        setupCubeManipulation: function () {
             var canvas = this
               , doc = $(document)
               , left, right, ctrl;
