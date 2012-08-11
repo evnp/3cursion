@@ -16,19 +16,21 @@ define([
         render: function () {
 
             var controls = navigator.appVersion.indexOf("Mac") != -1 ?
-              [ '1-finger click - select cube'
+              [ '1-finger double click - create cube'
+              , '1-finger double click on cube - delete cube'
+              , '1-finger click on cube - select cube'
               , '1-finger click and hold - move selected cubes | rotate camera'
               , '2-finger click and hold - rotate selected cubes'
               , '2-finger swipe (scroll) - resize selected cubes | zoom camera'
-              , 'hold ctrl | command - recursively repeat selected cubes'
-              ]
+              , 'hold ctrl | command - recursively repeat selected cubes' ]
               :
-              [ 'left mouse - select cube'
-              , 'hold left mouse - move selected cubes | rotate camera'
-              , 'hold right mouse - rotate selected cubes'
-              , 'mouse scroll - resize selected cubes | zoom camera'
-              , 'hold left + right mouse | ctrl - recursively repeat selected cubes'
-              ];
+              [ 'double click - create cube'
+              , 'double click on cube - delete cube'
+              , 'left click on cube - select cube'
+              , 'hold left click - move selected cubes | rotate camera'
+              , 'hold right click - rotate selected cubes'
+              , 'hold left + right - recursively repeat selected cubes'
+              , 'scroll wheel - resize selected cubes | zoom camera' ];
 
             this.$el.html(_.template(template)({ controls: controls }));
         }
