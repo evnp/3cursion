@@ -383,7 +383,7 @@ define([
                             };
 
                             // Repeat the cubes
-                            var copies = canvas.flatMap(
+                            var newCubes = canvas.flatMap(
                                 toRecurse, function (cube) {
                                     return cube.recurse(0, vectors);
                                 }
@@ -391,20 +391,11 @@ define([
 
                             // Add all the recursed copies
                             // to the main cube collection
-                            canvas.cubes.add(copies);
+                            canvas.cubes.add(newCubes);
 
-                            // Prepare for new selection
-                            canvas.selected.deselectAll();
-
-                            // Get the immediate children created
-                            // by the recursive operation
-                            // and select them.
-                            canvas.selected.add(_.intersection(
-                                copies,
-                                canvas.flatMap( toRecurse, function (cube) {
-                                    return cube.get('children');
-                                })
-                            ));
+                            // Select the first child that was created;
+                            // it is used to move all the children.
+                            canvas.selected.deselectAll().add(newCubes[0]);
 
                             // Set flag to activate normal cube movement
                             recursive = true;

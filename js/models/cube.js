@@ -14,7 +14,7 @@ define([
       , DARKGREY = 0xA9A9A9
 
     // If WebGL is unavaliable, limit iteration for performance.
-      , RECURSION_LIMIT = Detector.webgl ? 5 : 5 
+      , RECURSION_LIMIT = Detector.webgl ? 50 : 20
 
     // Show or hide wireframes
       , SHOW_WIREFRAME = false;
