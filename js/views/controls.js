@@ -16,13 +16,13 @@ define([
         render: function () {
 
             var controls = navigator.appVersion.indexOf("Mac") != -1 ?
-              [ '1-finger double click - create cube'
-              , '1-finger double click on cube - delete cube'
-              , '1-finger click on cube - select cube'
-              , '1-finger click and hold - move selected cubes | rotate camera'
+              [ 'double click - create cube'
+              , 'double click on cube - delete cube'
+              , 'click on cube - select cube'
+              , 'click and hold - move selected cubes | rotate camera'
               , '2-finger click and hold - rotate selected cubes'
               , '2-finger swipe (scroll) - resize selected cubes | zoom camera'
-              , 'hold ctrl | command - recursively repeat selected cubes' ]
+              , '&#8984; + click and hold - recursively repeat selected cubes' ]
               :
               [ 'double click - create cube'
               , 'double click on cube - delete cube'

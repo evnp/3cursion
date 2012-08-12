@@ -289,16 +289,18 @@ define([
         setupCubeManipulation: function () {
             var canvas = this
               , doc = $(document)
-              , left, right, ctrl;
+              , left, right, modKey;
 
             // Recursion - alternate to mouse controls
             doc.on('keydown', function (e) {
-                if (e.ctrlKey || e.metaKey) { // CTRL
-                    ctrl = true;
-                    doc.on('keyup.ctrl', function (e) {
-                        if (e.ctrlKey || e.metaKey) {
-                            doc.off('keyup.ctrl');
-                            ctrl = false;
+                if (canvas.modifierPressed(e)) {
+                    console.log('modkey is true');
+                    modKey = true;
+                    doc.on('keyup', function (e) {
+                        if (canvas.modifierPressed(e)) {
+                            doc.off('keyup');
+                            modKey = false;
+                            console.log('modkey is false');
                         }
                     });
                 }
@@ -397,7 +399,7 @@ define([
                         xSoFar   = xCopy;
                         ySoFar   = yCopy;
 
-                        if (left && right && !recursive) {
+                        if ((left && right || modKey) && !recursive) {
 
                             // Get set of cubes that will be repeated.
                             var toRecurse = canvas.flatMap(
@@ -492,6 +494,17 @@ define([
                 _.flatten(list.map(fn))   :
                 _.flatten(_.map(list, fn));
             return unique ? _.uniq(results) : results;
+        },
+
+        modifierPressed: function (e) {
+            return e.metaKey || // meta (command) key
+                  ($.browser.webkit &&
+                      (e.which === 91   ||
+                       e.which === 93)) ||
+                  ($.browser.mozilla &&
+                       e.which === 224) ||
+                   e.ctrlKey || // ctrl key
+                   e.which === 17;
         }
     });
 });
