@@ -20,9 +20,23 @@ html, body, #container, #content, #canvas {
 #controls {
     z-index: -1;
     margin: 24px;
-    position: absolute;
+    float: left;
     bottom: -16px;
-    font: 16px/16px futura-pt, Arial, Helvetica, sans-serif;
+    font: 18px/18px futura-pt, Arial, Helvetica, sans-serif;
     font-weight: 300;
     letter-spacing: .1em;
+    color: #777;
+}
+
+#controls div {
+    position: relative;
+    float: left;
+}
+
+#controls .labels {
+    text-align: right;
+}
+
+#controls .entries {
+    text-align: left;
 }

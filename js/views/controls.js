@@ -30,9 +30,20 @@ define([
               , 'hold left click - move selected cubes | rotate camera'
               , 'hold right click - rotate selected cubes'
               , 'hold left + right - recursively repeat selected cubes'
-              , 'scroll wheel - resize selected cubes | zoom camera' ];
+              , 'scroll wheel - resize selected cubes | zoom camera' ]
 
-            this.$el.html(_.template(template)({ controls: controls }));
+              , params = {
+                    labels:  [],
+                    entries: []
+                };
+
+            _.each( controls, function (control) {
+                control = control.split(' - ');
+                params.labels.push(control[0]);
+                params.entries.push(control[1]);
+            });
+
+            this.$el.html(_.template(template)(params));
         }
     });
 });

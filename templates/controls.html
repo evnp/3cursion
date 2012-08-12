@@ -1,3 +1,11 @@
-<% _.each(controls, function(control) { %>
-    <p><%= control %></p>
-<% }); %>
+<div class="labels">
+    <% _.each(labels, function(label) { %>
+        <p><%= label %>&nbsp;-&nbsp;</p>
+    <% }); %>
+</div>
+<div class="entries">
+    <% _.each(entries, function(entry) { %>
+        <p><%= entry %></p>
+    <% }); %>
+</div>
+<div style="clear: both"></div>
