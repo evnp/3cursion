@@ -277,7 +277,9 @@ define([
             canvas.cubes.on('remove', function (cube) {
                 var prnt = cube.get('parent');
                 if (!prnt) canvas.scene.remove(cube.get('object'));
-                else prnt.get('object').remove(cube.get('object'));
+                //else prnt.get('object').remove(cube.get('object'));
+                // Don't allow child cube deletion;
+                // prevents accidentally intrrupting a recursive form.
             });
 
             canvas.$el.dblclick( function (e) {
