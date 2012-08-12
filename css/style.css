@@ -21,7 +21,7 @@ html, body, #container, #content, #canvas {
     z-index: -1;
     margin: 24px;
     float: left;
-    bottom: -16px;
+    bottom: 0px;
     font: 18px/18px futura-pt, Arial, Helvetica, sans-serif;
     font-weight: 300;
     letter-spacing: .1em;
@@ -39,4 +39,8 @@ html, body, #container, #content, #canvas {
 
 #controls .entries {
     text-align: left;
+}
+
+#controls .directions {
+    clear: left;
 }
