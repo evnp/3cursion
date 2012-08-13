@@ -1,14 +1,21 @@
-<div class="labels">
+<div class="no-fade">
+    <div id="demo-btn">
+        <div class="play">PLAY LIVE DEMO</div>
+        <div class="pause" style="display: none;">PAUSE</div>
+    </div>
+    <div class="show-hide"></div>
+</div>
+<div class="labels text">
     <% _.each(labels, function(label) { %>
         <p><%= label %>&nbsp;-&nbsp;</p>
     <% }); %>
 </div>
-<div class="entries">
+<div class="entries text">
     <% _.each(entries, function(entry) { %>
         <p><%= entry %></p>
     <% }); %>
 </div>
-<div class="directions">
+<div class="directions text">
     <p>Try recursively repeating a cube in an already recursive form.</p>
     <p>This is how the most interesting recursive shapes are created.</p>
 </div>
