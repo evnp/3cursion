@@ -82,19 +82,46 @@ define([
             });
 
             // Set up demo
-            var demo, button = this.$('#demo-btn');
-            button.click( function (e) {
-                if (!demo) demo = new Demo(canvas);
-                if (!demo.running) {
-                    demo.start();
-                    button.find('div.play').fadeOut();
-                    button.find('div.pause').fadeIn();
-                } else {
-                    demo.pause();
-                    button.find('div.pause').fadeOut();
-                    button.find('div.play').fadeIn();
-                }
+            var demo   = new Demo(canvas)
+              , button = this.$('#demo-btn')
+              , start  = button.find('div,start')
+              , pause  = button.find('div.pause')
+              , play   = button.find('div.play')
+              , replay = button.find('div.replay')
+              , again  = replay.find('div.again')
+              , regen  = replay.find('div.new');
+
+            start.click( function () {
+                demo.start(true);
+                start.fadeOut();
+                pause.fadeIn();
             });
+
+            pause.click( function () {
+                demo.pause();
+                pause.fadeOut();
+                play.fadeIn();
+            });
+
+            play.click( function () {
+                demo.play();
+                play.fadeOut();
+                pause.fadeIn();
+            });
+
+            demo.on('complete', function () {
+                button.find('div').fadeOut();
+                replay.fadeIn();
+            });
+
+            again.click( function () { resetDemo(false); });
+            regen.click( function () { resetDemo(true);  });
+
+            function resetDemo(regen) {
+                replay.fadeOut();
+                pause.fadeIn();
+                demo.start(regen);
+            }
         }
     });
 });

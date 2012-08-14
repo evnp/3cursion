@@ -67,6 +67,7 @@ html, body, #container, #content, #canvas {
 }
 
 #demo-btn {
+    background-color: white;
     width: 165px;
     height: 34px;
     position: relative;
@@ -85,3 +86,19 @@ html, body, #container, #content, #canvas {
     text-align: center;
 }
 
+#demo-btn .replay {
+    padding: 0;
+}
+
+#demo-btn .replay div {
+    position: relative;
+}
+
+#demo-btn .again {
+    width: 52%;
+}
+
+#demo-btn .new {
+    width: 43%;
+    border-left: solid 1px black;
+}

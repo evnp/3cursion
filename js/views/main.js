@@ -15,7 +15,9 @@ define([
 
         render: function () {
             this.$el.html(mainTemplate);
-            (new Controls).render((new Canvas).render());
+            var canvas = new Canvas;
+            (new Controls).render(canvas);
+            canvas.render();
         }
     });
 });

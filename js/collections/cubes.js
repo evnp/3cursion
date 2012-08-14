@@ -42,6 +42,11 @@ define([
             return this;
         },
 
+        deselect: function (cube) {
+            cube.select(false);
+            this.remove(cube);
+        },
+
         deselectAll: function () {
             this.each( function (cube) { cube.select(false); });
             this.reset();

@@ -155,7 +155,7 @@ define([
                             canvas.$el.off('mousemove.cam');
                             canvas.$el.off('mouseup.cam');
 
-                            // Keep movment plane parallel with field of view
+                            // Keep reference plane parallel with field of view
                             canvas.plane.lookAt(canvas.camera.position);
                         }
                     });
@@ -188,6 +188,10 @@ define([
             this.camera.position.z = 100 * Math.sin(phi) * Math.sin(theta);
 
             this.camera.lookAt(this.camera.target);
+        },
+
+        resetCamera: function () {
+            console.log('resetting camera');
         },
 
     // Cube Hover
@@ -230,6 +234,7 @@ define([
 
                     // Select hovered object
                     canvas.selected.add(canvas.hovered);
+                    console.log(canvas.hovered.cid);
 
                     // Set plane offset for new mouseDown start position
                     var x = e.clientX
@@ -274,12 +279,16 @@ define([
         setupCubeDeletion: function () {
             var canvas = this;
 
-            canvas.cubes.on('remove', function (cube) {
-                var prnt = cube.get('parent');
-                if (!prnt) canvas.scene.remove(cube.get('object'));
-                //else prnt.get('object').remove(cube.get('object'));
-                // Don't allow child cube deletion;
-                // prevents accidentally intrrupting a recursive form.
+            canvas.cubes.on('remove', function (cubes) {
+                if (!(cubes instanceof Array)) cubes = [cubes];
+
+                _.each( cubes, function (cube) {
+                    var prnt = cube.get('parent');
+                    if (!prnt) { // Don't allow child cube deletion;
+                        canvas.scene.remove(cube.get('object'));
+                        canvas.selected.deselect(cube);
+                    }
+                });
             });
 
             canvas.$el.dblclick( function (e) {
