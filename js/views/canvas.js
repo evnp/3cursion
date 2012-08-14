@@ -243,8 +243,7 @@ define([
                           x, y, canvas.plane);
 
                     if (intersect) {
-                        canvas.planeOffset.copy(
-                            intersect.point
+                        canvas.planeOffset.copy(intersect
                         ).subSelf(canvas.plane.position);
                     }
                 }
@@ -269,7 +268,7 @@ define([
 
                     canvas.cubes.add({
                         position: canvas.getIntersectBetween(
-                            x, y, canvas.plane).point
+                            x, y, canvas.plane)
                     });
                 }
             });
@@ -387,9 +386,8 @@ define([
                         var intersect = canvas.getIntersectBetween(
                                 x, y, canvas.plane)
 
-                        // Details of the mouse movement
-                          , movement = intersect.point.subSelf( // 3d
-                                canvas.planeOffset)
+                        // Details of the mouse movement. v- 3d movement
+                          , movement = intersect.subSelf(canvas.planeOffset)
                           , mouseX = x - startX // x distance on screen
                           , mouseY = y - startY // y distance on screen
 
@@ -470,11 +468,16 @@ define([
     // Utility
         getHoveredAt: function (x, y) {
             return this.cubes.getFromIntersect(
-                this.getIntersectBetween(x, y, this.cubes.wireframes())
+                this.getIntersectObject(x, y, this.cubes.wireframes())
             );
         },
 
         getIntersectBetween: function (x, y, obj) {
+            var intersect = this.getIntersectObject(x, y, obj);
+            return intersect && intersect.point;
+        },
+
+        getIntersectObject: function (x, y, obj) {
             var ray = this.getRayAt(x, y)
 
             return ( obj instanceof Array ?
