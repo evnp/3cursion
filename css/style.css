@@ -3,18 +3,46 @@ html, body, #container, #content, #canvas {
     height: 100%;
     width: 100%;
 
-    -webkit-user-select: none; // webkit (safari, chrome) browsers
-    -moz-user-select: none; // mozilla browsers
-    -khtml-user-select: none; // webkit (konqueror) browsers
+
 }
 
 #content div { position: absolute; }
 
 #title {
     margin: 24px;
+    margin-left: 0;
     font: 24px/24px futura-pt, Arial, Helvetica, sans-serif;
     font-weight: 300;
     letter-spacing: .24em;
+    z-index: 2;
+}
+
+#title .three {
+    padding-left: 24px;
+    background-color: white;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+#title .text {
+    background-color: white;
+    margin-left: -21px;
+     transition-property:        margin-left;
+     transition-duration:        1s;
+    -moz-transition-property:    margin-left;
+    -moz-transition-duration:    1s;
+    -webkit-transition-property: margin-left;
+    -webkit-transition-duration: 1s;
+    -o-transition-property:      margin-left;
+    -o-transition-duration:      1s;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+#title .text:hover {
+    margin-left: 42px;
 }
 
 #controls {
@@ -84,6 +112,9 @@ html, body, #container, #content, #canvas {
     padding: 8px 2px;
     position: absolute;
     text-align: center;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 #demo-btn .replay {
