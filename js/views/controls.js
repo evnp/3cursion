@@ -91,36 +91,48 @@ define([
               , again  = replay.find('div.again')
               , regen  = replay.find('div.new');
 
-            start.click( function () {
-                demo.start(true);
-                start.fadeOut();
-                pause.fadeIn();
-            });
+            // Route events
+            button.on('click',  controlDemo);
+            demo.on('complete', completeDemo);
 
-            pause.click( function () {
-                demo.pause();
-                pause.fadeOut();
-                play.fadeIn();
-            });
+            function controlDemo() {
+                if (!demo.running) {
+                    start.fadeOut();
+                    newDemo();
 
-            play.click( function () {
-                demo.play();
-                play.fadeOut();
-                pause.fadeIn();
-            });
+                } else if (demo.paused) {
+                    play.fadeOut();
+                    pause.fadeIn();
 
-            demo.on('complete', function () {
+                    demo.play();
+
+                } else {
+                    pause.fadeOut();
+                    play.fadeIn();
+
+                    demo.pause();
+                }
+            }
+
+            function completeDemo() {
                 button.find('div').fadeOut();
                 replay.fadeIn();
-            });
 
-            again.click( function () { resetDemo(false); });
-            regen.click( function () { resetDemo(true);  });
+                again.on(  'click', repeatDemo);
+                regen.on(  'click', newDemo);
+            }
 
-            function resetDemo(regen) {
+            function repeatDemo() { resetDemo(false); return false; }
+            function newDemo()    { resetDemo(true);  return false; }
+
+            function resetDemo(regenActions) {
                 replay.fadeOut();
                 pause.fadeIn();
-                demo.start(regen);
+
+                again.off('click', repeatDemo);
+                regen.off('click', newDemo);
+
+                demo.start(regenActions);
             }
         }
     });

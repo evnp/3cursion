@@ -10,9 +10,11 @@ define([
     return Backbone.View.extend({
 
         initialize: function (canvas) {
-            this.canvas = canvas;
+            this.running = false;
+            this.paused  = false;
+            this.canvas  = canvas;
             this.actions = [];
-            this.cubes = new CubeCollection();
+            this.cubes   = new CubeCollection();
 
             var demo = this;
             this.cubes.on('add', function (cube) {
@@ -36,20 +38,29 @@ define([
             if (regen) this.generateActions();
             this.reset();
             this.running = true;
-            this.playActions();
+            this.playActions(this.actions);
         },
 
-        pause: function () { this.running = false; },
-        play:  function () { this.running = true;  },
+        pause: function () { this.paused = true; },
+        play:  function () { this.paused = false;  },
 
-        playActions: function () {
+        playActions: function (actions) {
 
             var demo = this
               , canvas = this.canvas
-              , action = this.actions[0]
+
+              // Copy actions so that originals aren't modified
+              , actions =  _.map(actions, function (action) {
+                    return _.clone(action);
+                })
+
+              // Get the first action and cube (if there is one)
+              , action = actions[0]
               , cube = this.cubes.at(action.subject || 0)
-              , index = frameNo = 0
-              , diff = new THREE.Vector3(0, 0, 0);
+
+              // Set maintenance variables
+              , diff = new THREE.Vector3(0, 0, 0)
+              , index = frameNo = 0;
 
             // Preform an action
             function doAction() {
@@ -61,7 +72,7 @@ define([
                     if (action.type === 'camera') // the reference plane
                         canvas.plane.lookAt(canvas.camera.position);
 
-                    action  = demo.actions[++index];
+                    action  = actions[++index];
                     frameNo = 0;
 
                     if (action) {
@@ -120,9 +131,13 @@ define([
 
             // Animation Loop
             function animate() {
-                if (demo.running) doAction();
-                if (action) requestAnimationFrame(animate);
-                else demo.trigger('complete');
+                if (!demo.paused) doAction();
+                if ( demo.running && action)
+                    requestAnimationFrame(animate);
+                else {
+                    demo.trigger('complete');
+                    demo.running = false;
+                }
             }
             animate();
         },

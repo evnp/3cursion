@@ -234,7 +234,6 @@ define([
 
                     // Select hovered object
                     canvas.selected.add(canvas.hovered);
-                    console.log(canvas.hovered.cid);
 
                     // Set plane offset for new mouseDown start position
                     var x = e.clientX
@@ -304,13 +303,11 @@ define([
             // Recursion - alternate to mouse controls
             doc.on('keydown', function (e) {
                 if (canvas.modifierPressed(e)) {
-                    console.log('modkey is true');
                     modKey = true;
                     doc.on('keyup', function (e) {
                         if (canvas.modifierPressed(e)) {
                             doc.off('keyup');
                             modKey = false;
-                            console.log('modkey is false');
                         }
                     });
                 }
@@ -387,7 +384,9 @@ define([
                                 x, y, canvas.plane)
 
                         // Details of the mouse movement. v- 3d movement
-                          , movement = intersect.subSelf(canvas.planeOffset)
+                          , movement = intersect ? 
+                                intersect.subSelf(canvas.planeOffset) :
+                                new THREE.Vector3(0, 0, 0)
                           , mouseX = x - startX // x distance on screen
                           , mouseY = y - startY // y distance on screen
 
