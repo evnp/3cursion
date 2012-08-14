@@ -51,16 +51,17 @@ define([
 
               // Copy actions so that originals aren't modified
               , actions =  _.map(actions, function (action) {
-                    return _.clone(action);
+                    var copy = _.clone(action);
+                    if (copy.actions)
+                        copy.actions = _.clone(copy.actions);
+                    return copy;
                 })
 
-              // Get the first action and cube (if there is one)
-              , action = actions[0]
-              , cube = this.cubes.at(action.subject || 0)
-
               // Set maintenance variables
-              , diff = new THREE.Vector3(0, 0, 0)
-              , index = frameNo = 0;
+              , index = frameNo = 0
+
+              // Get the first action
+              , action = actions[0];
 
             // Preform an action
             function doAction() {
@@ -75,58 +76,75 @@ define([
                     action  = actions[++index];
                     frameNo = 0;
 
-                    if (action) {
-                        cube = demo.cubes.at(action.subject || 0);
-                        if (action.depth)
-                            cube = cube.get('children')[action.depth - 1];
+                    if (action) { // Set up the subjects for this action(s)
+                        var subject;
+                        _.each( action.actions || [action], function (act) {
+                            subject = demo.cubes.at(act.subject || 0);
+                            if (act.depth && subject)
+                                subject = subject.get('children')[act.depth - 1];
+                            act.cube   = subject;
+
+                            // Frames are needed to divide the action
+                            act.frames = action.frames;
+                        });
                     }
                 }
 
-                // If we've reached the end of actions,
-                // or the current action is empty, pass
-                if (!action || !action.type) return;
+                // We've reached the end of the actions
+                if (!action) return;
 
-                if (action.type === 'camera') {
-                    canvas.lon += action.lon / action.frames;
-                    canvas.lat += action.lat / action.frames;
+                _.each(action.actions || [action], function (action) {
+                    if (action && action.type) handleAction(action);
+                });
 
-                } else if (action.type === 'creation') {
-                    demo.cubes.add({
-                        position: action.pos,
-                        size:     action.size
-                    });
-                    // Make sure only one cube is created
-                    delete action.type;
+                function handleAction(action) {
+                    console.log(action);
 
-                } else if (action.type.match(/position|rotation|scale/) && cube) {
+                    if (action.type === 'camera') {
+                        canvas.lon += action.lon / action.frames;
+                        canvas.lat += action.lat / action.frames;
 
-                    // Get the change vector for this fraction of the frame set
-                    _.each(['x', 'y', 'z'], function (a) {
-                        diff[a] = action.change[a] / action.frames;
-                    });
+                    } else if (action.type === 'creation') {
+                        console.log('creating'); 
+                        demo.cubes.add({
+                            position: action.pos,
+                            size:     action.size
+                        });
+                        // Make sure only one cube is created
+                        delete action.type;
 
-                    cube.changeAttr(action.type, diff);
+                    } else if (action.type.match(/position|rotation|scale/)
+                           &&  action.cube) {
 
-                } else if (action.type === 'recursion' && cube) {
+                        // Get the change vector for this fraction of the frame set
+                        var diff = new THREE.Vector3(0, 0, 0);
+                        _.each(['x', 'y', 'z'], function (a) {
+                            diff[a] = action.change[a] / action.frames;
+                        });
 
-                    // Get vectors used to link child cubes
-                    var vectors = {
-                        position: new THREE.Vector3( 0, 0, 0 ),
-                        rotation: new THREE.Vector3( 0, 0, 0 ),
-                        scale:    new THREE.Vector3( 1, 1, 1 )
-                    };
+                        action.cube.changeAttr(action.type, diff);
 
-                    // Don't add children to demo cube collection
-                    canvas.cubes.add( canvas.flatMap(
-                        cube.getRelated(), function (c) {
-                            return c.recurse(0, vectors);
-                        }
-                    ));
+                    } else if (action.type === 'recursion'
+                           &&  action.cube) {
 
-                    action.type = 'position';
-                    cube = _.last(cube.get('children'));
+                        // Get vectors used to link child cubes
+                        var vectors = {
+                            position: new THREE.Vector3( 0, 0, 0 ),
+                            rotation: new THREE.Vector3( 0, 0, 0 ),
+                            scale:    new THREE.Vector3( 1, 1, 1 )
+                        };
+
+                        // Don't add children to demo cube collection
+                        canvas.cubes.add( canvas.flatMap(
+                            action.cube.getRelated(), function (c) {
+                                return c.recurse(0, vectors);
+                            }
+                        ));
+
+                        action.type = 'position';
+                        action.cube = _.last(action.cube.get('children'));
+                    }
                 }
-
             }
 
             // Animation Loop
@@ -189,7 +207,7 @@ define([
             },{
                 frames: 10,
                 type: 'recursion',
-                change: new THREE.Vector3(0, 0, 12)
+                change: new THREE.Vector3(0, 0, -12)
             },{
                 frames: 10,
                 type: 'recursion',
@@ -197,23 +215,52 @@ define([
                 change: new THREE.Vector3(0, 12, 0)
             },{
                 frames: 60,
-                type: 'rotation',
-                depth: 1,
-                change: new THREE.Vector3(
-                    this.random(-360, 360) * 0.001,
-                    this.random(-360, 360) * 0.001,
-                    this.random(-360, 360) * 0.001
-                )
+                actions: [{
+                    type: 'rotation',
+                    depth: 1,
+                    change: this.randomVector(-360, 360, 0.001)
+                },{
+                    type: 'rotation',
+                    depth: 2,
+                    change: this.randomVector(-360, 360, 0.001)
+                },{
+                    type: 'scale',
+                    change: this.randomVector(-20, 0, 0.01, true)
+                },{
+                    type: 'scale',
+                    depth: 1,
+                    change: this.randomVector(-20, 0, 0.01, true)
+                },{
+                    type: 'scale',
+                    depth: 2,
+                    change: this.randomVector(-20, 0, 0.01, true)
+                }]
             },{
-                frames: 60,
-                type: 'rotation',
-                depth: 2,
-                change: new THREE.Vector3(
-                    this.random(-360, 360) * 0.001,
-                    this.random(-360, 360) * 0.001,
-                    this.random(-360, 360) * 0.001
-                )
+                frames: 40,
+                actions: [{
+                    type: 'rotation',
+                    depth: 1,
+                    change: this.randomVector(-360, 360, 0.001)
+                },{
+                    type: 'rotation',
+                    depth: 2,
+                    change: this.randomVector(-360, 360, 0.001)
+                }]
             }];
+
+        },
+
+        randomVector: function (a, b, factor, share) {
+            factor = factor || 1; // Scale the randomized values
+            var val;
+            return share && // Should 1 or 3 randomized values be generated?
+                (val = this.random(a, b) * factor) ?
+                new THREE.Vector3(val, val, val) :
+                new THREE.Vector3(
+                    this.random(a, b) * factor,
+                    this.random(a, b) * factor,
+                    this.random(a, b) * factor
+                );
         },
 
         random: function (a, b) {
