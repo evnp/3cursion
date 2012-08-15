@@ -121,13 +121,16 @@ html, body, #container, #content, #canvas {
 
 #demo-btn .replay div {
     position: relative;
+    padding: 8px 0;
 }
 
 #demo-btn .again {
-    width: 52%;
+    width: 56%;
+    text-indent: 2px;
 }
 
 #demo-btn .new {
     width: 43%;
     border-left: solid 1px black;
+    text-indent: 4px;
 }
