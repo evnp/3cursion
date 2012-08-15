@@ -2,6 +2,9 @@ html, body, #container, #content, #canvas {
     margin: 0;
     height: 100%;
     width: 100%;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 #content div { position: absolute; }
@@ -19,8 +22,6 @@ html, body, #container, #content, #canvas {
     padding-left: 24px;
     background-color: white;
 
-    -webkit-user-select: none;
-    -moz-user-select: none;
 }
 
 #title .text {
@@ -34,9 +35,6 @@ html, body, #container, #content, #canvas {
     -webkit-transition-duration: 1s;
     -o-transition-property:      margin-left;
     -o-transition-duration:      1s;
-
-    -webkit-user-select: none;
-    -moz-user-select: none;
 }
 
 #title .text:hover {
@@ -110,9 +108,6 @@ html, body, #container, #content, #canvas {
     padding: 8px 2px;
     position: absolute;
     text-align: center;
-
-    -webkit-user-select: none;
-    -moz-user-select: none;
 }
 
 #demo-btn .replay {
