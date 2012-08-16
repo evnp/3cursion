@@ -98,14 +98,18 @@ define([
                 });
 
                 function handleAction(action) {
-                    console.log(action);
 
                     if (action.type === 'camera') {
-                        canvas.lon += action.lon / action.frames;
-                        canvas.lat += action.lat / action.frames;
+                        canvas.lon += demo.getChange(
+                            action.lon, action.frames,
+                            frameNo,   'easeInOut'
+                        );
+                        canvas.lat += demo.getChange(
+                            action.lat, action.frames,
+                            frameNo,   'easeInOut'
+                        );
 
                     } else if (action.type === 'creation') {
-                        console.log('creating'); 
                         demo.cubes.add({
                             position: action.pos,
                             size:     action.size
@@ -119,7 +123,10 @@ define([
                         // Get the change vector for this fraction of the frame set
                         var diff = new THREE.Vector3(0, 0, 0);
                         _.each(['x', 'y', 'z'], function (a) {
-                            diff[a] = action.change[a] / action.frames;
+                            diff[a] = demo.getChange(action.change[a],
+                                                     action.frames, 
+                                                     frameNo,
+                                                     'easeInOut');
                         });
 
                         action.cube.changeAttr(action.type, diff);
@@ -158,6 +165,42 @@ define([
                 }
             }
             animate();
+        },
+
+        getChange: function (totalChange, frames, current, easing) {
+            if (!easing)
+                 return totalChange / frames;
+            else return totalChange * this[easing](current, frames);
+        },
+
+        easeInOut: function (current, total) {
+            return this.easeInOutFunc(current + 1, total) -
+                   this.easeInOutFunc(current, total);
+        },
+
+        easeIn: function (current, total) {
+            return this.easeInFunc(current + 1, total) -
+                   this.easeInFunc(current, total);
+        },
+
+        easeOut: function (current, total) {
+            return this.easeOutFunc(current + 1, total) -
+                   this.easeOutFunc(current, total);
+        },
+
+        easeInOutFunc: function (current, total) {
+            var half = total / 2;
+            return current <= half ?
+                 this.easeInFunc( current,        half) / 2 :
+                 this.easeOutFunc(current - half, half) / 2 + 0.5;
+        },
+
+        easeInFunc: function (current, total) {
+            return Math.pow(current / total, 4);
+        },
+
+        easeOutFunc: function (current, total) {
+            return 1 - Math.pow(1 - (current / total), 4);
         },
 
         generateActions: function () {
@@ -205,14 +248,14 @@ define([
                 pos: new THREE.Vector3(0, 0, 0),
                 size: 10 
             },{
-                frames: 10,
+                frames: 60,
                 type: 'recursion',
-                change: new THREE.Vector3(0, 0, -12)
+                change: new THREE.Vector3(0, 0, -this.random(5, 30))
             },{
-                frames: 10,
+                frames: 60,
                 type: 'recursion',
                 depth: 1,
-                change: new THREE.Vector3(0, 12, 0)
+                change: new THREE.Vector3(0, this.random(5, 30), 0)
             },{
                 frames: 60,
                 actions: [{
@@ -236,7 +279,7 @@ define([
                     change: this.randomVector(-20, 0, 0.01, true)
                 }]
             },{
-                frames: 40,
+                frames: 60,
                 actions: [{
                     type: 'rotation',
                     depth: 1,
@@ -245,6 +288,10 @@ define([
                     type: 'rotation',
                     depth: 2,
                     change: this.randomVector(-360, 360, 0.001)
+                },{
+                    type: 'camera',
+                    lon: 90,
+                    lat: 0
                 }]
             }];
 
