@@ -496,6 +496,22 @@ define([
                   vector.subSelf(this.camera.position).normalize());
         },
 
+        toScreenXY: function (pos3d) {
+
+            var pos = pos3d.clone()
+              , projScreenMat = new THREE.Matrix4()
+              , canvas = this.$el;
+
+            projScreenMat.multiply(this.camera.projectionMatrix,
+                                   this.camera.matrixWorldInverse);
+            projScreenMat.multiplyVector3(pos);
+
+            return {
+                x: ( pos.x + 1) * canvas.width()  / 2 + canvas.offset().left,
+                y: (-pos.y + 1) * canvas.height() / 2 + canvas.offset().top
+            };
+        },
+
         getScrollDelta: function (ev) {
             if      ( ev.wheelDeltaY ) return -ev.wheelDeltaY * 0.05; // Webkit
             else if ( ev.wheelDelta )  return -ev.wheelDelta * 0.05;  // Opera

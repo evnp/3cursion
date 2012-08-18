@@ -128,3 +128,9 @@ html, body, #container, #content, #canvas {
     border-left: solid 1px black;
     text-indent: 4px;
 }
+
+#canvas .demo-tooltip {
+    font: 18px/18px futura-pt, Arial, Helvetica, sans-serif;
+    font-weight: 300;
+    letter-spacing: .1em;
+}

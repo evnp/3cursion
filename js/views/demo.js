@@ -73,8 +73,19 @@ define([
                     if (action.type === 'camera') // the reference plane
                         canvas.plane.lookAt(canvas.camera.position);
 
+                    // Save for comparison to new description
+                    var oldDescription = action.description,
+                        oldTooltip     = action.tooltip;
+
                     action  = actions[++index];
                     frameNo = 0;
+
+                    // If the new action has a different description
+                    // remove the tooltip from the previous action.
+                    // Otherwise, transfer the tooltip over.
+                    if (!action || action.description !== oldDescription)
+                         demo.removeTooltip(oldTooltip);
+                    else action.tooltip = oldTooltip;
 
                     if (action) { // Set up the subjects for this action(s)
                         var subject;
@@ -117,6 +128,14 @@ define([
                         // Make sure only one cube is created
                         delete action.type;
 
+                        // Create tooltip for description
+                        if (action.description) {
+                            action.tooltip = demo.placeTooltip(
+                                action.description,
+                                demo.cubes.last()
+                            );
+                        }
+
                     } else if (action.type.match(/position|rotation|scale/)
                            &&  action.cube) {
 
@@ -124,12 +143,19 @@ define([
                         var diff = new THREE.Vector3(0, 0, 0);
                         _.each(['x', 'y', 'z'], function (a) {
                             diff[a] = demo.getChange(action.change[a],
-                                                     action.frames, 
+                                                     action.frames,
                                                      frameNo,
-                                                     'easeInOut');
+                                                    'easeInOut');
                         });
 
                         action.cube.changeAttr(action.type, diff);
+
+                        // Handle tooltip
+                        if (action.tooltip)
+                            demo.moveTooltip(action.tooltip, action.cube);
+                        else if (action.description)
+                            action.tooltip = demo.placeTooltip(
+                                action.description, action.cube);
 
                     } else if (action.type === 'recursion'
                            &&  action.cube) {
@@ -165,6 +191,44 @@ define([
                 }
             }
             animate();
+        },
+
+        placeTooltip: function(text, cube) {
+            var screenPos = this.canvas.toScreenXY(cube.get('position'))
+              , tooltip   = this.canvas.$el.append(
+                    '<div class="demo-tooltip">' + text + '</div>'
+                ).find('div.demo-tooltip:last')
+                // Use :last to make sure we get the right tooltip
+
+              , scaleVec = cube.get('scale')
+              , scale = (scaleVec.x + scaleVec.y + scaleVec.z)/3
+              , size = cube.get('size');
+
+            tooltip.css({
+                'display': 'none',
+                'left': screenPos.x - tooltip.width()/2,
+                'top':  screenPos.y - 70 - (size * scale - size)
+            });
+
+            return tooltip.fadeIn();
+        },
+
+        moveTooltip: function(tooltip, cube) {
+            var screenPos = this.canvas.toScreenXY(cube.get('position'))
+              , scaleVec = cube.get('scale')
+              , scale = (scaleVec.x + scaleVec.y + scaleVec.z)/3
+              , size = cube.get('size');
+
+            tooltip.css({
+                'left': screenPos.x - tooltip.width()/2,
+                'top':  screenPos.y - 70 - (size * scale - size)
+            });
+        },
+
+        removeTooltip: function(tooltip) {
+            if (tooltip) tooltip.fadeOut( function () {
+                $(this).remove();
+            });
         },
 
         getChange: function (totalChange, frames, current, easing) {
@@ -243,19 +307,52 @@ define([
             */
 
             this.actions = [{
-                frames: 60,
+                frames: 120,
                 type: 'creation',
                 pos: new THREE.Vector3(0, 0, 0),
-                size: 10 
+                size: 10,
+                description: 'double-click to create a cube'
+            },{
+                frames: 60,
+                type: 'position',
+                change: new THREE.Vector3(0, 0, 20),
+                description: 'hold left click to move'
+            },{
+                frames: 60,
+                type: 'position',
+                change: new THREE.Vector3(0, 0, -20),
+                description: 'hold left click to move'
+            },{
+                frames: 60,
+                type: 'rotation',
+                change: new THREE.Vector3(2, 2, 2),
+                description: 'hold right click to rotate'
+            },{
+                frames: 60,
+                type: 'rotation',
+                change: new THREE.Vector3(-2, -2, -2),
+                description: 'hold right click to rotate'
+            },{
+                frames: 30,
+                type: 'scale',
+                change: new THREE.Vector3(0.5, 0.5, 0.5),
+                description: 'scroll mouse wheel to scale'
+            },{
+                frames: 30,
+                type: 'scale',
+                change: new THREE.Vector3(-0.5, -0.5, -0.5),
+                description: 'scroll mouse wheel to scale'
             },{
                 frames: 60,
                 type: 'recursion',
-                change: new THREE.Vector3(0, 0, -this.random(5, 30))
+                change: new THREE.Vector3(0, 0, -this.random(5, 30)),
+                description: 'hold right+left click and drag to repeat'
             },{
                 frames: 60,
                 type: 'recursion',
                 depth: 1,
-                change: new THREE.Vector3(0, this.random(5, 30), 0)
+                change: new THREE.Vector3(0, this.random(5, 30), 0),
+                description: 'repeat again for 2-level recursion'
             },{
                 frames: 60,
                 actions: [{
