@@ -50,16 +50,19 @@ define([
 
             // Set up show/hide controls arrow
             var controls = $('#controls')
-              , arrow = controls.find('div.show-hide');
-            arrow.click(function (e) {
-                var newAngle = parseFloat(arrow.css('text-indent')) ? 0 : -60
-                  , text   = controls.find('div.text')
-                  , noFade = controls.find('div.no-fade');
+              , arrow = controls.find('div.show-hide')
+              , text   = controls.find('div.text')
+              , noFade = controls.find('div.no-fade');
+
+            arrow.click(toggleControls);
+
+            function toggleControls() {
 
                 // Arrow Rotation:
                 // jQuery can't animate transforms. So we animate a property
                 // we don't care about (textIndent) and feed the value to a
                 // step function that will set the transform value properly.
+                var newAngle = parseFloat(arrow.css('text-indent')) ? 0 : -60;
                 arrow.animate({ textIndent: newAngle }, {
                     step: function(angle) {
                         var value = 'rotate(' + angle + 'deg)';
@@ -79,7 +82,15 @@ define([
                         noFade.animate({ top: 298 });
                     });
                 }
-            });
+            }
+
+            function hideControls() {
+                if (text.is(':visible')) toggleControls();
+            }
+
+            function showControls() {
+                if (text.is(':hidden')) toggleControls();
+            }
 
             // Set up demo
             var demo   = new Demo(canvas)
@@ -100,6 +111,7 @@ define([
                 if (!demo.running) {
                     start.fadeOut();
                     newDemo();
+                    if (firstRun) hideControls();
                     firstRun = false;
 
                 } else if (demo.paused) {

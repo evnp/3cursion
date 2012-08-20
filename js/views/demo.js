@@ -223,8 +223,8 @@ define([
             tooltip.css({
                 'top':  screenPos.y - tooltip.height()/2 - 3,
                 'left': screenPos.x -
-                    (alignment === 'right'  ? -50 :
-                     alignment === 'left'   ? tooltip.width() + 50 :
+                    (alignment === 'right'  ? -80 :
+                     alignment === 'left'   ? tooltip.width() + 80 :
                  /* default: top or bottom */ tooltip.width()/2    )
             });
 
@@ -377,6 +377,8 @@ define([
                     'repeat again for 3-dimensional recursion';
 
                 this.actions = [{
+                    frames: 40
+                },{
                     frames: 120,
                     type: 'creation',
                     pos: new THREE.Vector3(0, 0, 0),
