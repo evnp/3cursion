@@ -105,7 +105,7 @@ define([
                 if (!action) return;
 
                 _.each(action.actions || [action], function (action) {
-                    if (action && action.type) handleAction(action);
+                    if (action) handleAction(action);
                 });
 
                 function handleAction(action) {
@@ -128,15 +128,8 @@ define([
                         // Make sure only one cube is created
                         delete action.type;
 
-                        // Create tooltip for description
-                        if (action.description) {
-                            action.tooltip = demo.placeTooltip(
-                                action.description,
-                                demo.cubes.last()
-                            );
-                        }
-
-                    } else if (action.type.match(/position|rotation|scale/)
+                    } else if (action.type
+                           &&  action.type.match(/position|rotation|scale/)
                            &&  action.cube) {
 
                         // Get the change vector for this fraction of the frame set
@@ -152,10 +145,9 @@ define([
 
                         // Handle tooltip
                         if (action.tooltip)
-                            demo.moveTooltip(action.tooltip, action.cube);
-                        else if (action.description)
-                            action.tooltip = demo.placeTooltip(
-                                action.description, action.cube);
+                            demo.moveTooltip(action.tooltip,
+                                             action.cube,
+                                             action.alignment);
 
                     } else if (action.type === 'recursion'
                            &&  action.cube) {
@@ -177,6 +169,15 @@ define([
                         action.type = 'position';
                         action.cube = _.last(action.cube.get('children'));
                     }
+
+                    // Create tooltip for description
+                    if (action.description && !action.tooltip) {
+                        var cube = demo.cubes.last();
+                        if (cube) action.tooltip = demo.placeTooltip(
+                            action.description, cube,
+                            action.alignment
+                        );
+                    }
                 }
             }
 
@@ -193,36 +194,41 @@ define([
             animate();
         },
 
-        placeTooltip: function(text, cube) {
-            var screenPos = this.canvas.toScreenXY(cube.get('position'))
-              , tooltip   = this.canvas.$el.append(
+        placeTooltip: function(text, cube, alignment) {
+
+            // Create and place the tooltip
+            return this.moveTooltip(
+                this.canvas.$el.append(
                     '<div class="demo-tooltip">' + text + '</div>'
-                ).find('div.demo-tooltip:last')
                 // Use :last to make sure we get the right tooltip
-
-              , scaleVec = cube.get('scale')
-              , scale = (scaleVec.x + scaleVec.y + scaleVec.z)/3
-              , size = cube.get('size');
-
-            tooltip.css({
-                'display': 'none',
-                'left': screenPos.x - tooltip.width()/2,
-                'top':  screenPos.y - 70 - (size * scale - size)
-            });
-
-            return tooltip.fadeIn();
+                ).find('div.demo-tooltip:last'), cube, alignment
+            ).css({ 'display': 'none' }).fadeIn();
         },
 
-        moveTooltip: function(tooltip, cube) {
-            var screenPos = this.canvas.toScreenXY(cube.get('position'))
+        moveTooltip: function(tooltip, cube, alignment) {
+            var pos      = cube.get('position')
+              , size     = cube.get('size')
               , scaleVec = cube.get('scale')
-              , scale = (scaleVec.x + scaleVec.y + scaleVec.z)/3
-              , size = cube.get('size');
+              , scale    = (scaleVec.x + scaleVec.y + scaleVec.z)/3
+
+              , offset    = size * scale + 2
+              , offsetPos = _.extend(_.clone(pos),
+                    alignment === 'right'  ? { x: pos.x + offset } :
+                    alignment === 'left'   ? { x: pos.x - offset } :
+                    alignment === 'bottom' ? { y: pos.y - offset } :
+                       /* default: top */    { y: pos.y + offset } )
+
+              , screenPos = this.canvas.toScreenXY(offsetPos);
 
             tooltip.css({
-                'left': screenPos.x - tooltip.width()/2,
-                'top':  screenPos.y - 70 - (size * scale - size)
+                'top':  screenPos.y - tooltip.height()/2 - 3,
+                'left': screenPos.x -
+                    (alignment === 'right'  ? -50 :
+                     alignment === 'left'   ? tooltip.width() + 50 :
+                 /* default: top or bottom */ tooltip.width()/2    )
             });
+
+            return tooltip;
         },
 
         removeTooltip: function(tooltip) {
@@ -313,46 +319,68 @@ define([
                 size: 10,
                 description: 'double-click to create a cube'
             },{
-                frames: 60,
-                type: 'position',
-                change: new THREE.Vector3(0, 0, 20),
-                description: 'hold left click to move'
-            },{
-                frames: 60,
-                type: 'position',
-                change: new THREE.Vector3(0, 0, -20),
-                description: 'hold left click to move'
-            },{
-                frames: 60,
-                type: 'rotation',
-                change: new THREE.Vector3(2, 2, 2),
-                description: 'hold right click to rotate'
-            },{
-                frames: 60,
-                type: 'rotation',
-                change: new THREE.Vector3(-2, -2, -2),
-                description: 'hold right click to rotate'
+                frames: 20,
+                description: 'scroll mouse wheel to scale',
+                alignment: 'bottom'
             },{
                 frames: 30,
                 type: 'scale',
                 change: new THREE.Vector3(0.5, 0.5, 0.5),
-                description: 'scroll mouse wheel to scale'
+                description: 'scroll mouse wheel to scale',
+                alignment: 'bottom'
             },{
                 frames: 30,
                 type: 'scale',
                 change: new THREE.Vector3(-0.5, -0.5, -0.5),
-                description: 'scroll mouse wheel to scale'
+                description: 'scroll mouse wheel to scale',
+                alignment: 'bottom'
+            },{
+                frames: 20,
+                description: 'hold left click to move',
+                alignment: 'left'
+            },{
+                frames: 60,
+                type: 'position',
+                change: new THREE.Vector3(0, 0, 20),
+                description: 'hold left click to move',
+                alignment: 'left'
+            },{
+                frames: 60,
+                type: 'position',
+                change: new THREE.Vector3(0, 0, -20),
+                description: 'hold left click to move',
+                alignment: 'left'
+            },{
+                frames: 20,
+                description: 'hold right click to rotate',
+                alignment: 'right'
+            },{
+                frames: 60,
+                type: 'rotation',
+                change: new THREE.Vector3(2, 2, 2),
+                description: 'hold right click to rotate',
+                alignment: 'right'
+            },{
+                frames: 60,
+                type: 'rotation',
+                change: new THREE.Vector3(-2, -2, -2),
+                description: 'hold right click to rotate',
+                alignment: 'right'
+            },{
+                frames: 20,
+                description: 'hold both to repeat'
             },{
                 frames: 60,
                 type: 'recursion',
                 change: new THREE.Vector3(0, 0, -this.random(5, 30)),
-                description: 'hold right+left click and drag to repeat'
+                description: 'hold both to repeat'
             },{
                 frames: 60,
                 type: 'recursion',
                 depth: 1,
                 change: new THREE.Vector3(0, this.random(5, 30), 0),
-                description: 'repeat again for 2-level recursion'
+                description: 'repeat again for 3-dimensional recursion',
+                alignment: 'left'
             },{
                 frames: 60,
                 actions: [{

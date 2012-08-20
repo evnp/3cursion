@@ -500,15 +500,15 @@ define([
 
             var pos = pos3d.clone()
               , projScreenMat = new THREE.Matrix4()
-              , canvas = this.$el;
+              , canvas = this.$('canvas');
 
             projScreenMat.multiply(this.camera.projectionMatrix,
                                    this.camera.matrixWorldInverse);
             projScreenMat.multiplyVector3(pos);
 
             return {
-                x: ( pos.x + 1) * canvas.width()  / 2 + canvas.offset().left,
-                y: (-pos.y + 1) * canvas.height() / 2 + canvas.offset().top
+                x: ( pos.x + 1) * canvas.width()  / 2,// + canvas.offset().left,
+                y: (-pos.y + 1) * canvas.height() / 2// + canvas.offset().top
             };
         },
 
