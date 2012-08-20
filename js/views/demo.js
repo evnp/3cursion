@@ -29,14 +29,14 @@ define([
         },
 
         reset: function () {
-            this.canvas.resetCamera();
             this.canvas.cubes.remove(this.cubes.toArray());
             this.cubes.reset();
         },
 
-        start: function (regen) {
-            if (regen) this.generateActions();
+        start: function (regen, instructional) {
+            if (regen) this.generateActions(instructional);
             this.reset();
+            this.canvas.resetCamera();
             this.running = true;
             this.playActions(this.actions);
         },
@@ -273,7 +273,7 @@ define([
             return 1 - Math.pow(1 - (current / total), 4);
         },
 
-        generateActions: function () {
+        generateActions: function (instructional) {
 
             /*
             Create a cube:
@@ -313,74 +313,21 @@ define([
             */
 
             this.actions = [{
-                frames: 120,
+                frames: 20,
                 type: 'creation',
                 pos: new THREE.Vector3(0, 0, 0),
-                size: 10,
-                description: 'double-click to create a cube'
+                size: 10
             },{
-                frames: 20,
-                description: 'scroll mouse wheel to scale',
-                alignment: 'bottom'
-            },{
-                frames: 30,
-                type: 'scale',
-                change: new THREE.Vector3(0.5, 0.5, 0.5),
-                description: 'scroll mouse wheel to scale',
-                alignment: 'bottom'
-            },{
-                frames: 30,
-                type: 'scale',
-                change: new THREE.Vector3(-0.5, -0.5, -0.5),
-                description: 'scroll mouse wheel to scale',
-                alignment: 'bottom'
-            },{
-                frames: 20,
-                description: 'hold left click to move',
-                alignment: 'left'
-            },{
-                frames: 60,
-                type: 'position',
-                change: new THREE.Vector3(0, 0, 20),
-                description: 'hold left click to move',
-                alignment: 'left'
-            },{
-                frames: 60,
-                type: 'position',
-                change: new THREE.Vector3(0, 0, -20),
-                description: 'hold left click to move',
-                alignment: 'left'
-            },{
-                frames: 20,
-                description: 'hold right click to rotate',
-                alignment: 'right'
-            },{
-                frames: 60,
-                type: 'rotation',
-                change: new THREE.Vector3(2, 2, 2),
-                description: 'hold right click to rotate',
-                alignment: 'right'
-            },{
-                frames: 60,
-                type: 'rotation',
-                change: new THREE.Vector3(-2, -2, -2),
-                description: 'hold right click to rotate',
-                alignment: 'right'
-            },{
-                frames: 20,
-                description: 'hold both to repeat'
+                frames: 20
             },{
                 frames: 60,
                 type: 'recursion',
-                change: new THREE.Vector3(0, 0, -this.random(5, 30)),
-                description: 'hold both to repeat'
+                change: new THREE.Vector3(0, 0, -this.random(5, 30))
             },{
                 frames: 60,
                 type: 'recursion',
                 depth: 1,
-                change: new THREE.Vector3(0, this.random(5, 30), 0),
-                description: 'repeat again for 3-dimensional recursion',
-                alignment: 'left'
+                change: new THREE.Vector3(0, this.random(5, 30), 0)
             },{
                 frames: 60,
                 actions: [{
@@ -420,6 +367,72 @@ define([
                 }]
             }];
 
+            if (instructional) {
+
+                this.actions.shift()
+                this.actions[0].description = 'hold both to repeat';
+                this.actions[1].description = 'hold both to repeat';
+                this.actions[2].alignment   = 'left';
+                this.actions[2].description =
+                    'repeat again for 3-dimensional recursion';
+
+                this.actions = [{
+                    frames: 120,
+                    type: 'creation',
+                    pos: new THREE.Vector3(0, 0, 0),
+                    size: 10,
+                    description: 'double-click to create a cube'
+                },{
+                    frames: 20,
+                    description: 'scroll mouse wheel to scale',
+                    alignment: 'bottom'
+                },{
+                    frames: 30,
+                    type: 'scale',
+                    change: new THREE.Vector3(0.5, 0.5, 0.5),
+                    description: 'scroll mouse wheel to scale',
+                    alignment: 'bottom'
+                },{
+                    frames: 30,
+                    type: 'scale',
+                    change: new THREE.Vector3(-0.5, -0.5, -0.5),
+                    description: 'scroll mouse wheel to scale',
+                    alignment: 'bottom'
+                },{
+                    frames: 20,
+                    description: 'hold left click to move',
+                    alignment: 'left'
+                },{
+                    frames: 60,
+                    type: 'position',
+                    change: new THREE.Vector3(0, 0, 20),
+                    description: 'hold left click to move',
+                    alignment: 'left'
+                },{
+                    frames: 60,
+                    type: 'position',
+                    change: new THREE.Vector3(0, 0, -20),
+                    description: 'hold left click to move',
+                    alignment: 'left'
+                },{
+                    frames: 20,
+                    description: 'hold right click to rotate',
+                    alignment: 'right'
+                },{
+                    frames: 60,
+                    type: 'rotation',
+                    change: new THREE.Vector3(2, 2, 2),
+                    description: 'hold right click to rotate',
+                    alignment: 'right'
+                },{
+                    frames: 60,
+                    type: 'rotation',
+                    change: new THREE.Vector3(-2, -2, -2),
+                    description: 'hold right click to rotate',
+                    alignment: 'right'
+
+                }].concat(this.actions);
+            }
         },
 
         randomVector: function (a, b, factor, share) {

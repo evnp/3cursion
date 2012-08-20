@@ -191,7 +191,9 @@ define([
         },
 
         resetCamera: function () {
-            console.log('resetting camera');
+            this.lat = 0;
+            this.lon = 0;
+            this.positionCamera();
         },
 
     // Cube Hover

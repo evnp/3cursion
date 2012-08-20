@@ -89,7 +89,8 @@ define([
               , play   = button.find('div.play')
               , replay = button.find('div.replay')
               , again  = replay.find('div.again')
-              , regen  = replay.find('div.new');
+              , regen  = replay.find('div.new')
+              , firstRun = true;
 
             // Route events
             button.on('click',  controlDemo);
@@ -99,6 +100,7 @@ define([
                 if (!demo.running) {
                     start.fadeOut();
                     newDemo();
+                    firstRun = false;
 
                 } else if (demo.paused) {
                     play.fadeOut();
@@ -122,17 +124,17 @@ define([
                 regen.on(  'click', newDemo);
             }
 
-            function repeatDemo() { resetDemo(false); return false; }
-            function newDemo()    { resetDemo(true);  return false; }
+            function repeatDemo() { resetDemo(); return false; }
+            function newDemo()    { resetDemo(true, firstRun);  return false; }
 
-            function resetDemo(regenActions) {
+            function resetDemo(regenActions, instructional) {
                 replay.fadeOut();
                 pause.fadeIn();
 
                 again.off('click', repeatDemo);
                 regen.off('click', newDemo);
 
-                demo.start(regenActions);
+                demo.start(regenActions, instructional);
             }
         }
     });
