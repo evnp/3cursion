@@ -17,7 +17,7 @@ define([
 
         render: function (canvas) {
 
-            var controls = navigator.appVersion.indexOf("Mac") != -1 ?
+            var controls = navigator.appVersion.indexOf('Mac') !== -1 ?
               [ 'double click - create cube'
               , 'double click on cube - delete cube'
               , 'click on cube - select cube'

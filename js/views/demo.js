@@ -369,12 +369,23 @@ define([
 
             if (instructional) {
 
+                var isMac = navigator.appVersion.indexOf('Mac') !== -1
+                  , create = 'double-click to create a cube'
+                  , scale  = isMac ? 'swipe with 2 fingers to scale' :
+                                     'scroll mouse wheel to scale'
+                  , move   = isMac ? '1 finger click and hold to move' :
+                                     'hold left click to move'
+                  , rotate = isMac ? '2 finger click and hold to rotate' :
+                                     'hold right click to rotate'
+                  , repeat = isMac ? 'hold &#8984; and move a cube to repeat' :
+                                     'hold both to repeat'
+                  , again  = 'repeat again for 3-dimensional recursion';
+
                 this.actions.shift()
-                this.actions[0].description = 'hold both to repeat';
-                this.actions[1].description = 'hold both to repeat';
+                this.actions[0].description = repeat;
+                this.actions[1].description = repeat;
                 this.actions[2].alignment   = 'left';
-                this.actions[2].description =
-                    'repeat again for 3-dimensional recursion';
+                this.actions[2].description = again;
 
                 this.actions = [{
                     frames: 40
@@ -383,54 +394,55 @@ define([
                     type: 'creation',
                     pos: new THREE.Vector3(0, 0, 0),
                     size: 10,
-                    description: 'double-click to create a cube'
+                    description: create
                 },{
                     frames: 20,
-                    description: 'scroll mouse wheel to scale',
+                    description: scale,
                     alignment: 'bottom'
                 },{
                     frames: 30,
                     type: 'scale',
                     change: new THREE.Vector3(0.5, 0.5, 0.5),
-                    description: 'scroll mouse wheel to scale',
+                    description: scale,
                     alignment: 'bottom'
                 },{
                     frames: 30,
                     type: 'scale',
                     change: new THREE.Vector3(-0.5, -0.5, -0.5),
-                    description: 'scroll mouse wheel to scale',
+                    description: scale,
                     alignment: 'bottom'
                 },{
                     frames: 20,
                     description: 'hold left click to move',
+                    description: move,
                     alignment: 'left'
                 },{
                     frames: 60,
                     type: 'position',
                     change: new THREE.Vector3(0, 0, 20),
-                    description: 'hold left click to move',
+                    description: move,
                     alignment: 'left'
                 },{
                     frames: 60,
                     type: 'position',
                     change: new THREE.Vector3(0, 0, -20),
-                    description: 'hold left click to move',
+                    description: move,
                     alignment: 'left'
                 },{
                     frames: 20,
-                    description: 'hold right click to rotate',
+                    description: rotate,
                     alignment: 'right'
                 },{
                     frames: 60,
                     type: 'rotation',
                     change: new THREE.Vector3(2, 2, 2),
-                    description: 'hold right click to rotate',
+                    description: rotate,
                     alignment: 'right'
                 },{
                     frames: 60,
                     type: 'rotation',
                     change: new THREE.Vector3(-2, -2, -2),
-                    description: 'hold right click to rotate',
+                    description: rotate,
                     alignment: 'right'
 
                 }].concat(this.actions);
