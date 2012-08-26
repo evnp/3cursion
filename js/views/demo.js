@@ -185,7 +185,7 @@ define([
             function animate() {
                 if (!demo.paused) doAction();
                 if ( demo.running && action)
-                    requestAnimationFrame(animate);
+                    setTimeout(animate, 25);
                 else {
                     demo.trigger('complete');
                     demo.running = false;
@@ -195,7 +195,7 @@ define([
         },
 
         placeTooltip: function(text, cube, alignment) {
-
+            console.log('placing tooltip');
             // Create and place the tooltip
             return this.moveTooltip(
                 this.canvas.$el.append(
@@ -232,6 +232,7 @@ define([
         },
 
         removeTooltip: function(tooltip) {
+            console.log('removing tooltip');
             if (tooltip) tooltip.fadeOut( function () {
                 $(this).remove();
             });
@@ -369,6 +370,18 @@ define([
 
             if (instructional) {
 
+                var isMac  = navigator.appVersion.indexOf('Mac') !== -1
+                  , create = 'double-click to create a cube'
+                  , scale  = isMac ? 'swipe with 2 fingers to scale' :
+                                     'scroll mouse wheel to scale'
+                  , move   = isMac ? '1 finger click and hold to move' :
+                                     'hold left click to move'
+                  , rotate = isMac ? '2 finger click and hold to rotate' :
+                                     'hold right click to rotate'
+                  , repeat = isMac ? 'hold &#8984; and move a cube to repeat' :
+                                     'hold both to repeat'
+                  , again  = 'repeat again for 3-dimensional recursion';
+
                 this.actions.shift()
                 this.actions[0].description = 'hold both to repeat';
                 this.actions[1].description = 'hold both to repeat';
@@ -379,7 +392,7 @@ define([
                 this.actions = [{
                     frames: 40
                 },{
-                    frames: 120,
+                    frames: 100,
                     type: 'creation',
                     pos: new THREE.Vector3(0, 0, 0),
                     size: 10,
@@ -389,13 +402,13 @@ define([
                     description: 'scroll mouse wheel to scale',
                     alignment: 'bottom'
                 },{
-                    frames: 30,
+                    frames: 20,
                     type: 'scale',
                     change: new THREE.Vector3(0.5, 0.5, 0.5),
                     description: 'scroll mouse wheel to scale',
                     alignment: 'bottom'
                 },{
-                    frames: 30,
+                    frames: 20,
                     type: 'scale',
                     change: new THREE.Vector3(-0.5, -0.5, -0.5),
                     description: 'scroll mouse wheel to scale',
@@ -405,13 +418,13 @@ define([
                     description: 'hold left click to move',
                     alignment: 'left'
                 },{
-                    frames: 60,
+                    frames: 40,
                     type: 'position',
                     change: new THREE.Vector3(0, 0, 20),
                     description: 'hold left click to move',
                     alignment: 'left'
                 },{
-                    frames: 60,
+                    frames: 40,
                     type: 'position',
                     change: new THREE.Vector3(0, 0, -20),
                     description: 'hold left click to move',
@@ -421,13 +434,13 @@ define([
                     description: 'hold right click to rotate',
                     alignment: 'right'
                 },{
-                    frames: 60,
+                    frames: 40,
                     type: 'rotation',
                     change: new THREE.Vector3(2, 2, 2),
                     description: 'hold right click to rotate',
                     alignment: 'right'
                 },{
-                    frames: 60,
+                    frames: 40,
                     type: 'rotation',
                     change: new THREE.Vector3(-2, -2, -2),
                     description: 'hold right click to rotate',
