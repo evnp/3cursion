@@ -195,7 +195,6 @@ define([
         },
 
         placeTooltip: function(text, cube, alignment) {
-            console.log('placing tooltip');
             // Create and place the tooltip
             return this.moveTooltip(
                 this.canvas.$el.append(
@@ -232,7 +231,6 @@ define([
         },
 
         removeTooltip: function(tooltip) {
-            console.log('removing tooltip');
             if (tooltip) tooltip.fadeOut( function () {
                 $(this).remove();
             });

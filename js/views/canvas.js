@@ -37,6 +37,7 @@ define([
             this.hovered  = null;
             this.selected = new CubeCollection();
             this.cubes    = new CubeCollection();
+            this.roots    = new CubeCollection();
 
         // Reference Plane
         // used to determine 3D mouse positions for cube creation/movement
@@ -118,8 +119,27 @@ define([
             this.$el.append(this.renderer.domElement);
 
             // Start animation loop
-            var canvas = this;
+            var canvas = this
+              , start  = new Date().getTime()
+              , showFPS = true
+
+              , sampleSize = 10
+              , stabalizeTime = 10
+              , stablizing = false;
+
+
+            if (showFPS) $('#canvas').append(
+                '<div id="fps"></div>'
+            ).find('#fps').css({
+                position: 'absolute',
+                bottom: 0, left: 10 
+            });
+
             function animate() {
+                var fps = 1000 / (-start + (start = new Date().getTime()));
+                if (showFPS) $('#fps').html(parseInt(fps) + ' FPS');
+                if (fps < 10) canvas.roots.incRecLimit(fps);
+                if (fps > 30) canvas.roots.decRecLimit(f
                 requestAnimationFrame(animate);
                 canvas.renderFrame();
             }
@@ -258,8 +278,10 @@ define([
             canvas.cubes.on('add', function (cube) {
                 // Don't add recursive child cubes to the scene;
                 // they are already being added through their Object3D
-                if (!cube.get('parent'))
+                if (!cube.get('parent')) {
                     canvas.scene.add(cube.get('object'));
+                    canvas.roots.add(cube);
+                }
             });
 
             canvas.$el.dblclick( function (e) {
