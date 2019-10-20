@@ -1,0 +1,21 @@
+{
+  "name": "3d-recursion",
+  "version": "1.0.0",
+  "description": "3d-recursion ============",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "python3 -m http.server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evnp/3d-recursion.git"
+  },
+  "author": "Evan Purcer <evanpurcer@gmail.com> (http://evnp.ca)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evnp/3d-recursion/issues"
+  },
+  "homepage": "https://github.com/evnp/3d-recursion#readme",
+  "devDependencies": {}
+}

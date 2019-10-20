@@ -25,7 +25,7 @@ html, body, #container, #content, #canvas {
 
 #title .text {
     background-color: white;
-    margin-left: -21px;
+    margin-left: -37px;
      transition-property:        margin-left;
      transition-duration:        1s;
     -moz-transition-property:    margin-left;
@@ -53,11 +53,12 @@ html, body, #container, #content, #canvas {
     margin: 24px;
     float: left;
     bottom: 0px;
-    font: 18px/18px futura-pt, Arial, Helvetica, sans-serif;
+    font-family: futura-pt, Arial, Helvetica, sans-serif;
+		font-size: 14px;
     font-weight: 300;
     letter-spacing: .1em;
     color: #777;
-    height: 360px;
+    height: 300px;
 }
 
 #controls div {
@@ -105,7 +106,8 @@ html, body, #container, #content, #canvas {
     position: relative;
     color: red;
     letter-spacing: .24em;
-    font-size: 16px;
+    font-size: 12px;
+		font-weight: bold;
     border: solid 1px black;
     margin: 16px;
     cursor: pointer;
@@ -113,13 +115,14 @@ html, body, #container, #content, #canvas {
 
 #demo-btn div {
     width: 100%;
-    padding: 8px 2px;
+    padding: 10px 2px;
     position: absolute;
     text-align: center;
 }
 
 #demo-btn .replay {
     padding: 0;
+		padding-top: 2px;
 }
 
 #demo-btn .replay div {

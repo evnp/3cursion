@@ -79,7 +79,7 @@ define([
                     });
                 } else {
                     text.fadeOut( function () {
-                        noFade.animate({ top: 298 });
+                        noFade.animate({ top: 236 });
                     });
                 }
             }
