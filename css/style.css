@@ -22,12 +22,10 @@ html, body, #container, #content, #canvas {
 
 #title .three {
     padding-left: 24px;
-    background-color: white;
 }
 
 #title .text {
-    background-color: white;
-    margin-left: -37px;
+    margin-left: -74px;
      transition-property:        margin-left;
      transition-duration:        1s;
     -moz-transition-property:    margin-left;
@@ -39,8 +37,15 @@ html, body, #container, #content, #canvas {
     white-space: nowrap;
 }
 
+#title .text-container {
+	  overflow: hidden;
+    height: 44px;
+    width: 230px;
+    margin-left: 36px;
+}
+
 #title .text:hover {
-    margin-left: 42px;
+    margin-left: 6px;
 }
 
 #title .browser-warning {
