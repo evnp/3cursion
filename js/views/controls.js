@@ -24,7 +24,9 @@ define([
               , 'click and hold - move selected cubes | rotate camera'
               , '2-finger click and hold - rotate selected cubes'
               , '2-finger swipe (scroll) - resize selected cubes | zoom camera'
-              , '&#8984; + click and hold - recursively repeat selected cubes' ]
+              , '&#8984; + click and hold - recursively repeat selected cubes'
+              , 'ctrl + h - hide/show controls'
+              ]
               :
               [ 'double click - create cube'
               , 'double click on cube - delete cube'
@@ -32,8 +34,9 @@ define([
               , 'hold left click - move selected cubes | rotate camera'
               , 'hold right click - rotate selected cubes'
               , 'hold left + right - recursively repeat selected cubes'
-              , 'scroll wheel - resize selected cubes | zoom camera' ]
-
+              , 'scroll wheel - resize selected cubes | zoom camera'
+              , 'ctrl + h - hide/show controls'
+              ]
               , params = {
                     labels:  [],
                     entries: []
@@ -55,6 +58,15 @@ define([
               , noFade = controls.find('div.no-fade');
 
             arrow.click(toggleControls);
+
+            // Toggle-hide entire GUI on ctrl+h press
+            var title = document.getElementById('title');
+            document.addEventListener('keydown', function(ev) {
+              if (ev.ctrlKey && ev.which === 72) {  // detect ctrl+h press
+                controls.toggle();
+                title.style.display = title.style.display === 'none' ? 'block' : 'none';
+              }
+            });
 
             function toggleControls() {
 
