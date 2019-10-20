@@ -99,7 +99,7 @@ define([
             this.scene.add(ambient);
 
         // Renderer
-            this.renderer = new THREE[RENDERER]();
+            this.renderer = new THREE[RENDERER]({antialias: true});
 
         // Misc.
             var canvas = this;
@@ -386,7 +386,7 @@ define([
                                 x, y, canvas.plane)
 
                         // Details of the mouse movement. v- 3d movement
-                          , movement = intersect ? 
+                          , movement = intersect ?
                                 intersect.subSelf(canvas.planeOffset) :
                                 new THREE.Vector3(0, 0, 0)
                           , mouseX = x - startX // x distance on screen
