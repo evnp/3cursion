@@ -160,6 +160,16 @@ define([
 
                 demo.start(regenActions, instructional);
             }
+
+            var demoTimeout = setTimeout(function () {
+							if (!demo.running) {
+                controlDemo();
+							}
+            }, 3000);
+
+						$(document).dblclick(function() {
+							clearTimeout(demoTimeout);
+						});
         }
     });
 });
