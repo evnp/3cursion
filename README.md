@@ -1,4 +1,4 @@
-3d-recursion
+3cursion
 ============
 
-A simple modelling tool that can be used to create recursive 3-dimensional objects.
+A simple modelling tool that can be used to create recursive three-dimensional objects.
